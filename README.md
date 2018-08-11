@@ -7,5 +7,5 @@ Materials:\n
   Soil hygrometer like this one. Buy it in aliexpress, ebay, etc.
     https://www.instructables.com/id/How-to-Use-the-Soil-Hygrometer-Module-Arduino-Tuto/
   Temperature and relative humidity sensor
-  Real Time Clock (RTC) module (optional)
+  Real Time Clock (RTC) module (optional, DS1307 for example)
   Electrovalve
