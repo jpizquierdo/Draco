@@ -27,7 +27,7 @@ Draco::Draco (
 	_min_temperature=min_temperature;
 	_max_temperature=max_temperature;
 	_watering = false;
-	DHT dht(_RelativeHumidity_Temperature_pin, DHT11);
+	DHT dht(_RelativeHumidity_Temperature_pin, DHTTYPE);
 }
 
 void Draco::Setup()
