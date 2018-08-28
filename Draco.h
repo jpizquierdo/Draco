@@ -7,13 +7,13 @@
 #include <DHT.h>
 class Draco {
 	public:
-		Draco(String name,
-			  int Water_pin,
-			  int RelativeHumidity_Temperature_pin,
-			  int SoilHumidityDigitalPin,
-			  int SoilHumidityAnalogPin,
-			  int water_time,
-			  int water_threshold,
+		Draco(String name="Plant 1",
+			  int Water_pin=2,
+			  int RelativeHumidity_Temperature_pin=3,
+			  int SoilHumidityDigitalPin=4,
+			  int SoilHumidityAnalogPin=A1,
+			  int water_time=300,
+			  int water_threshold=300,
 			  int min_temperature=5,
 			  int max_temperature=40);
 		void Setup();
@@ -43,8 +43,7 @@ class Draco {
 		int _water_time;
 		int _water_threshold;
 		int _min_temperature;
-		int _max_temperature;
-		bool _watering;
+		int _max_temperature;	
 		time_t _watering_time_init;
 		DHT dht;
 };
