@@ -26,8 +26,7 @@ Draco::Draco (
 	_water_threshold=water_threshold;
 	_min_temperature=min_temperature;
 	_max_temperature=max_temperature;
-	_watering = false;
-	DHT dht(_RelativeHumidity_Temperature_pin, DHTTYPE);
+	DHT dht(RelativeHumidity_Temperature_pin, DHTTYPE);
 }
 
 void Draco::Setup()
@@ -111,19 +110,16 @@ void Draco::setMaxTemperature(int value)
 void Draco::water()
 {	
 	_watering_time_init = now();
-	_watering=true;
 	digitalWrite(_Water_pin, HIGH);
 }
 
 void Draco::check_watering()
 {
-	if ((_watering == true) && (now() - _watering_time_init >=_water_time)){
-		_watering=false;
+	if ((digitalRead(_Water_pin) == true) && (now() - _watering_time_init >=_water_time)){	
 		digitalWrite(_Water_pin, LOW);
 	}
 	//For future improvements
-	/*if ((_watering == false) && (getSoilHumidity()<_water_threshold)){
-		_watering=true;
+	/*if ((digitalRead(_Water_pin) == false) && (getSoilHumidity()<_water_threshold)){	
 		digitalWrite(_Water_pin, HIGH);
 	}*/
 }
