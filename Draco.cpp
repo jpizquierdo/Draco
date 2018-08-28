@@ -126,9 +126,6 @@ void Draco::check_watering()
 
 void Draco::water_off()
 {
-	_watering=false;
 	digitalWrite(_Water_pin, LOW);
 }
-
-		
-
+	
