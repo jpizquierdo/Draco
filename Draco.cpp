@@ -38,7 +38,12 @@ void Draco::Setup()
 
 int Draco::getSoilHumidity()
 {
-	return analogRead(_SoilHumidityAnalogPin);
+	// When the plant is watered well the sensor will read a value 380~400, I will keep the 400 
+	// value but if you want you can change it below. 
+	_SoilHumidity_percentage = analogRead(_SoilHumidityAnalogPin);
+	_SoilHumidity_percentage = constrain(_SoilHumidity_percentage,400,1023);	//Keep the ranges!
+	_SoilHumidity_percentage = map(_SoilHumidity_percentage,400,1023,100,0);	//Map value : 400 will be 100% and 1023 will be 0%
+	return _SoilHumidity_percentage;
 }
 
 int Draco::getSoilStatus()

@@ -46,6 +46,7 @@ class Draco {
 		int _max_temperature;	
 		time_t _watering_time_init;
 		DHT dht;
+		int _SoilHumidity_percentage;
 };
 #endif
 
