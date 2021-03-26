@@ -13,7 +13,7 @@ Materials:
   Libraries:  
   https://github.com/PaulStoffregen/TimeAlarms  
   https://github.com/adafruit/Adafruit_Sensor  
-  https://github.com/adafruit/DHT-sensor-library (better use my modified or modify this one by yourself)  
+  https://github.com/adafruit/DHT-sensor-library  
   https://github.com/PaulStoffregen/Time  
   https://github.com/PaulStoffregen/DS1307RTC  
   
