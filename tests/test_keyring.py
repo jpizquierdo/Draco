@@ -18,3 +18,7 @@ print(keyring.get_password(NAMESPACE, ENTRY))
 cred = keyring.get_credential(NAMESPACE, ENTRY)
 print(f"Password for username {cred.username} in namespace {NAMESPACE} is {cred.password}")
 # Password for username API_KEY in namespace my-app is a3491fb2-000f-4d9f-943e-127cfe29c39c
+
+keyring.set_password(NAMESPACE, "TELEGRAM_API_KEY", "XXXXXXX")
+keyring.set_password(NAMESPACE, "CHAT_ID_GROUP1", "-123123123")
+keyring.set_password(NAMESPACE, "CHAT_ID_USER1", "11231231235")
