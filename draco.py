@@ -1,7 +1,7 @@
 import sys, os
 from pathlib import Path
 from multiprocessing import Queue
-from draco.processors import TelegramBot
+from draco.processors.telegram_bot import TelegramBot
 import argparse
 import json
 from time import sleep

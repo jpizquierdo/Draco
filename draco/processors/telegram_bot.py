@@ -47,7 +47,6 @@ class TelegramBot(Process):
                 sleep(10)
 
         except Exception as error:
-            pid = os.getpid()
             print(f"Process {pid} - " + repr(error))
             success = False
         finally:
