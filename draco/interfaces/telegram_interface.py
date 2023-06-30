@@ -4,6 +4,7 @@ import keyring
 import random
 import datetime
 import telepot
+from telepot.loop import MessageLoop
 
 class TelegramInterface(object):
     def __init__(
@@ -43,10 +44,10 @@ class TelegramInterface(object):
         success = True
 
         try:
-            self.allowed_users = self._get_allowed_users(**self._config["allowed_users"])
+            self._allowed_users = self._get_allowed_users(**self._config["allowed_users"])
             self._api_key = keyring.get_password(self._config["namespace"], self._config["api"])
-            bot = telepot.Bot(self._api_key)
-            telepot.loop.MessageLoop(bot, self._handle).run_as_thread()
+            self._bot = telepot.Bot(self._api_key)
+            MessageLoop(self._bot, self._handle).run_as_thread()
         except Exception as error:
             print(f"Process {self._pid} - " + repr(error))
             success = False
@@ -65,8 +66,8 @@ class TelegramInterface(object):
         if chat_id in self._allowed_users:
             print (f"Received command {command}")
             if command == "/random":
-                bot.sendMessage(chat_id, random.randint(1,6))
+                self._bot.sendMessage(chat_id, random.randint(1,6))
             elif command == "/date":
-                bot.sendMessage(chat_id, str(datetime.datetime.now()))
+                self._bot.sendMessage(chat_id, str(datetime.datetime.now()))
             elif command == "/photo":
-                bot.sendPhoto(chat_id, "https://sklad500.ru/wp-content/uploads/2019/09/teleport02-1000x526.jpeg")
+                self._bot.sendPhoto(chat_id, "https://sklad500.ru/wp-content/uploads/2019/09/teleport02-1000x526.jpeg")

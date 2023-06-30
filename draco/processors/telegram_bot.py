@@ -34,7 +34,7 @@ class TelegramBot(Process):
     def run(
         self
     ) -> None:
-        success = True
+        success = False
         teleti = None
         pid = os.getpid()
         try:
