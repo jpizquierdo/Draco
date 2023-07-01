@@ -91,9 +91,9 @@ class TelegramInterface(object):
         self.system_status_lock.acquire()
         info = self.system_status_proxy._getvalue()
         self.system_status_lock.release()
-        self._bot.sendMessage(chat_id, "System Status:")
+        self._bot.sendMessage(chat_id, "*_System Status_*", parse_mode= "Markdown")
         for key in info:
-            self._bot.sendMessage(chat_id, f"{key.ljust(15)}: {info[key]}")
+            self._bot.sendMessage(chat_id, f"{(key+':').ljust(12-len(key))} {info[key]}")
     
     def _toggle_pump(self, chat_id):
         """
