@@ -4,7 +4,8 @@
     "api": "TELEGRAM_API_KEY",
     "allowed_users": {
       "user1": "CHAT_ID_USER1",
-      "user2": "CHAT_ID_GROUP1"
+      "user2": "CHAT_ID_GROUP1",
+      "user3": "CHAT_ID_USER2"
     }
   }
 }

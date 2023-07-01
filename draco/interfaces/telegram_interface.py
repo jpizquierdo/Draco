@@ -9,7 +9,8 @@ from telepot.loop import MessageLoop
 class TelegramInterface(object):
     def __init__(
         self,
-        config: Mapping[str, Any] = {}
+        config: Mapping[str, Any] = {},
+        name: str = "telegram_bot"
     ) -> None:
         """
        Telegram interface constructor.
@@ -20,8 +21,8 @@ class TelegramInterface(object):
             Class configuration map.
         """
         config_draco = config.copy()
-        if "telegram_bot" in config:
-            config_draco = config_draco["telegram_bot"]
+        if name in config:
+            config_draco = config_draco[name]
 
         self._config = config_draco
         self._pid = os.getpid()
@@ -63,6 +64,8 @@ class TelegramInterface(object):
     def _handle(self, msg):
         chat_id = msg["chat"]["id"]
         command = msg["text"]
+        if "@" in command: # to fix messages inside groups
+            command = command.split("@")[0]
         if chat_id in self._allowed_users:
             print (f"Received command {command}")
             if command == "/random":

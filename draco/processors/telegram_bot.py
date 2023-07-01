@@ -28,6 +28,7 @@ class TelegramBot(Process):
 
         super().__init__()
         self._config = config.copy()
+        self._name = "telegram_bot"
         #self._log_queue = log_queue
         #self._error_queue = error_queue
 
@@ -38,11 +39,11 @@ class TelegramBot(Process):
         teleti = None
         pid = os.getpid()
         try:
-            teleti = TelegramInterface(config=self._config)
+            teleti = TelegramInterface(config=self._config, name=self._name)
             while not success:
                 success = teleti.init()
                 sleep(0.1)
-            print("telegram bot successfully initialized")
+            print(f"telegram bot '{self._name}' successfully initialized")
             while True:
                 sleep(10)
 
