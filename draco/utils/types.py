@@ -4,8 +4,8 @@ class Status(NamedTuple):
     """
     Status object to be shared in multiprocessing manager.
     """
-    waterpump: int = -1
-    valve1: int = -1
-    valve2: int = -1
-    valve3: int = -1
+    waterpump: int = 0
+    valve1: int = 0
+    valve2: int = 0
+    valve3: int = 0
 

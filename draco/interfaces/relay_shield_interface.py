@@ -5,7 +5,6 @@ from enum import IntEnum, unique
 
 @unique
 class GPIO_Mode(IntEnum):
-    NOT_SET = -1
     BCM_MODE = 11
     BOARD_MODE = 10
 
@@ -82,7 +81,7 @@ class KS0212Interface(object):
 
         try:
             # GPIO setup
-            if GPIO.getmode() == GPIO_Mode.NOT_SET:
+            if GPIO.getmode() == None:
                 GPIO.setmode(GPIO.BCM)
             self._gpio_setup(**self._config)
             self.Channel = IntEnum('Channel', {"WATERPUMP" : self._config["WaterPump"],
@@ -105,7 +104,11 @@ class KS0212Interface(object):
             self.system_status_lock.acquire()
             info = self.system_status_proxy._getvalue()
             self.system_status_lock.release()
-            print(info) #TODO: debug only
+            #print(info) #TODO: debug only
+            self.handle_relay(self.Channel.WATERPUMP, info["waterpump"])
+            self.handle_relay(self.Channel.VALVE1, info["valve1"])
+            self.handle_relay(self.Channel.VALVE2, info["valve2"])
+            self.handle_relay(self.Channel.VALVE3, info["valve3"])
         except:
             success = False
         return success
