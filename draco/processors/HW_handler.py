@@ -2,9 +2,10 @@ from multiprocessing import Process, Manager
 from typing import Mapping, Type, Any
 from time import sleep
 import sys, os
-from draco.interfaces.telegram_interface import TelegramInterface
+import RPi.GPIO as GPIO
+from draco.interfaces.relay_shield_interface import KS0212Interface
 
-class TelegramBot(Process):
+class HardwareHandler(Process):
     def __init__(
         self,
         config: Mapping[str, Any],
@@ -39,22 +40,25 @@ class TelegramBot(Process):
         self
     ) -> None:
         success = False
-        teleti = None
+        hwti = None
         pid = os.getpid()
         try:
-            teleti = TelegramInterface(config=self._config, memory_proxy=(self.system_status_proxy, self.system_status_lock), name=self._name)
+            hwti = KS0212Interface(config=self._config, 
+                                   memory_proxy=(self.system_status_proxy, self.system_status_lock), 
+                                   name=self._name)
             while not success:
-                success = teleti.init()
+                success = hwti.init()
                 sleep(0.1)
-            print(f"telegram bot '{self._name}' successfully initialized")
+            print(f"'{self._name}' successfully initialized")
             while True:
-                sleep(10)
+                hwti.step() #Update GPIO values
+                sleep(1)
 
         except Exception as error:
             print(f"Process {pid} - " + repr(error))
             success = False
         finally:
-            pass # close telegram bot
+            pass
 
         exit_code = int(not success)
         sys.exit(exit_code)
