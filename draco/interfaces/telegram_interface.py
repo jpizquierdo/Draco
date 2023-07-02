@@ -1,5 +1,6 @@
-from typing import Mapping, Type, Any
+from typing import Mapping, Any
 from multiprocessing import Queue
+import queue
 import os
 import keyring
 import random
@@ -70,8 +71,8 @@ class TelegramInterface(object):
         """
         try:
             msg = self.telegram_queue.get_nowait()
-            self._bot.sendMessage(self.logging_chat_id, f"{msg}", parse_mode= "MarkdownV2")
-        except Queue.empty:
+            self._bot.sendMessage(self.logging_chat_id, f"{msg}")
+        except queue.Empty:
             pass
     
     def _get_allowed_users(self, **kwargs):

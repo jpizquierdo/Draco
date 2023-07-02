@@ -53,7 +53,7 @@ class TelegramBot(Process):
                 success = teleti.init()
                 sleep(0.1)
             print(f"telegram bot '{self._name}' - {pid} successfully initialized")
-            self.telegram_queue.put(f"telegram bot '{self._name}' - {pid} successfully initialized")
+            self.telegram_queue.put(f"Process {pid} \- telegram bot '{self._name}' successfully initialized")
             while True:
                 teleti.step_log()
                 sleep(0.2)
