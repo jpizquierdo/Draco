@@ -51,8 +51,8 @@ class GPIOHandler(Process):
             while not success:
                 success = relayit.init()
                 sleep(0.1)
-            print(f"'{self._name}' successfully initialized")
-            self.telegram_queue.put(f"'{self._name}' successfully initialized")
+            print(f"'{self._name}' - {pid} successfully initialized")
+            self.telegram_queue.put(f"'{self._name}' - {pid} successfully initialized")
             while True:
                 relayit.step() #Update GPIO values
                 sleep(1)

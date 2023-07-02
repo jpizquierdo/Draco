@@ -36,7 +36,7 @@ class TelegramInterface(object):
         self.system_status_proxy = memory_proxy[0]
         self.system_status_lock = memory_proxy[1]
         self.telegram_queue = telegram_queue
-        self.logging_chat_id = int(keyring.get_password(self._config["namespace"], self._config["user1"]))
+        self.logging_chat_id = int(keyring.get_password(self._config["namespace"], self._config["allowed_users"]["user1"]))
         self._pid = os.getpid()
         self._allowed_users = []
         self._api_key = ""
