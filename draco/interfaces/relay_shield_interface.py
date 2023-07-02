@@ -1,4 +1,5 @@
 from typing import Mapping, Any
+from multiprocessing import Queue
 import os
 import RPi.GPIO as GPIO
 from enum import IntEnum, unique
@@ -40,6 +41,7 @@ class KS0212Interface(object):
         self,
         config: Mapping[str, Any] = {},
         memory_proxy: tuple = (),
+        telegram_queue: Queue = None,
         name: str = "relayshield"
     ) -> None:
         """
@@ -62,6 +64,7 @@ class KS0212Interface(object):
         self._config = config_draco
         self.system_status_proxy = memory_proxy[0]
         self.system_status_lock = memory_proxy[1]
+        self.telegram_queue = telegram_queue
         self._pid = os.getpid()
         self.Channel = None
 
@@ -104,7 +107,6 @@ class KS0212Interface(object):
             self.system_status_lock.acquire()
             info = self.system_status_proxy._getvalue()
             self.system_status_lock.release()
-            #print(info) #TODO: debug only
             self.handle_relay(self.Channel.WATERPUMP, info["waterpump"])
             self.handle_relay(self.Channel.VALVE1, info["valve1"])
             self.handle_relay(self.Channel.VALVE2, info["valve2"])
@@ -118,30 +120,41 @@ class KS0212Interface(object):
             GPIO.setup(kwargs[key], GPIO.OUT)
     
     def handle_relay(self, channel, value):
-        GPIO.output(channel, value)
+        # only handles the GPIO HW if the value has changed.
+        if GPIO.input(channel) != value:
+            GPIO.output(channel, value)
+            self.telegram_queue.put(f"{__name__}: {channel.name} set to {value}")
     
     def start_waterPump(self):
         GPIO.output(self.Channel.WATERPUMP, 1)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.WATERPUMP.name} set to 1")
 
     def stop_waterPump(self):
         GPIO.output(self.Channel.WATERPUMP, 0)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.WATERPUMP.name} set to 0")
     
     def start_valve1(self):
         GPIO.output(self.Channel.VALVE1, 1)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE1.name} set to 1")
 
     def stop_valve1(self):
         GPIO.output(self.Channel.VALVE1, 0)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE1.name} set to 0")
     
     def start_valve2(self):
         GPIO.output(self.Channel.VALVE2, 1)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE2.name} set to 1")
 
     def stop_valve2(self):
         GPIO.output(self.Channel.VALVE2, 0)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE2.name} set to 0")
     
     def start_valve3(self):
         GPIO.output(self.Channel.VALVE3, 1)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE3.name} set to 1")
 
     def stop_valve3(self):
         GPIO.output(self.Channel.VALVE3, 0)
+        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE3.name} set to 0")
     
   

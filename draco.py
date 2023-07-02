@@ -1,8 +1,8 @@
 import sys, os
 from pathlib import Path
-from multiprocessing import Manager
+from multiprocessing import Manager, Queue
 from draco.processors.telegram_bot import TelegramBot
-from draco.processors.HW_handler import HardwareHandler
+from draco.processors.GPIO_handler import GPIOHandler
 from draco.utils.types import Status
 import argparse
 import json
@@ -14,7 +14,7 @@ def main(manager) -> int:
     success = True
     processes = None
     pid = os.getpid()
-    GPIO.cleanup() #cleanup will be made in main application only
+    GPIO.cleanup() # cleanup will be made in main application only
     try:
         # Get static configuration for the program
         parser = argparse.ArgumentParser()
@@ -27,19 +27,25 @@ def main(manager) -> int:
         with open(Path(parser.parse_args().config), "r") as jsonfile:
             config = json.load(jsonfile)
 
-        #Creation of Manager proxy and Manager Lock
+        # Creation of Manager proxy and Manager Lock: Manager Server Process with common data for multiprocessing. Not shared memory
         system_status_proxy = manager.dict(Status()._asdict()) # create a proxy dict
         system_status_lock = manager.Lock()
+        # shared memory queue
+        q_telegram_log = Queue(maxsize=20)
+
+        q_telegram_log.put("Starting Draco")
 
         # Creation of processes
         processes = []
         # Telegram bot
         processes.append(TelegramBot(config=config, 
                                      memory_proxy=(system_status_proxy, system_status_lock), 
+                                     telegram_queue=q_telegram_log,
                                      name="telegram_bot"))
         # Relay shield
-        processes.append(HardwareHandler(config=config, 
+        processes.append(GPIOHandler(config=config, 
                                          memory_proxy=(system_status_proxy, system_status_lock), 
+                                         telegram_queue=q_telegram_log,
                                          name="relayshield"))
 
         # Start processes
@@ -58,10 +64,10 @@ def main(manager) -> int:
         success = False
     finally:
         GPIO.cleanup()
+        q_telegram_log.close()
         print("GPIO cleanup performed due to exitting app")
         if processes is not None:
-            for process in processes:
-                [p.kill() for p in processes if p.is_alive()]
+            [p.kill() for p in processes if p.is_alive()]
     return int(not success)
 
 if __name__ == "__main__":

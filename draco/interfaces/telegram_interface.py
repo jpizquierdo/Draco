@@ -1,4 +1,5 @@
 from typing import Mapping, Type, Any
+from multiprocessing import Queue
 import os
 import keyring
 import random
@@ -11,6 +12,7 @@ class TelegramInterface(object):
         self,
         config: Mapping[str, Any] = {},
         memory_proxy: tuple = (),
+        telegram_queue: Queue = None,
         name: str = "telegram_bot"
     ) -> None:
         """
@@ -33,6 +35,8 @@ class TelegramInterface(object):
         self._config = config_draco
         self.system_status_proxy = memory_proxy[0]
         self.system_status_lock = memory_proxy[1]
+        self.telegram_queue = telegram_queue
+        self.logging_chat_id = int(keyring.get_password(self._config["namespace"], self._config["user1"]))
         self._pid = os.getpid()
         self._allowed_users = []
         self._api_key = ""
@@ -60,6 +64,16 @@ class TelegramInterface(object):
             success = False
         return success
     
+    def step_log(self) -> None:
+        """
+        This methods will check the queue and log the messages from other processes to self.logging_chat_id
+        """
+        try:
+            msg = self.telegram_queue.get_nowait()
+            self._bot.sendMessage(self.logging_chat_id, f"{msg}", parse_mode= "MarkdownV2")
+        except Queue.empty:
+            pass
+    
     def _get_allowed_users(self, **kwargs):
         allowed = []
         for key in kwargs:
@@ -83,6 +97,12 @@ class TelegramInterface(object):
                 self._check_status(chat_id)
             elif command == "/pump":
                 self._toggle_pump(chat_id)
+            elif command == "/valve1":
+                self._toggle_valve(chat_id, 1)
+            elif command == "/valve2":
+                self._toggle_valve(chat_id, 2)
+            elif command == "/valve3":
+                self._toggle_valve(chat_id, 3)
     
     def _check_status(self, chat_id):
         """
@@ -101,5 +121,14 @@ class TelegramInterface(object):
         """
         self.system_status_lock.acquire()
         self.system_status_proxy["waterpump"] = int(not self.system_status_proxy["waterpump"])
-        self._bot.sendMessage(chat_id, f"Command Pump Status to: {self.system_status_proxy['waterpump']}")
+        self._bot.sendMessage(chat_id, f"{__name__}: Request Pump Status to: {self.system_status_proxy['waterpump']}")
+        self.system_status_lock.release()
+    
+    def _toggle_valve(self, chat_id, valve_number):
+        """
+        This method toggle the value of the valves 1, 2, 3
+        """
+        self.system_status_lock.acquire()
+        self.system_status_proxy[f"valve{valve_number}"] = int(not self.system_status_proxy[f"valve{valve_number}"])
+        self._bot.sendMessage(chat_id, f"{__name__}: Request Valve {valve_number} Status to: {self.system_status_proxy[f'valve{valve_number}']}")
         self.system_status_lock.release()

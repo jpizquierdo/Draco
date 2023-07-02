@@ -1,5 +1,6 @@
-from multiprocessing import Process, Manager
-from typing import Mapping, Type, Any
+from multiprocessing import Process
+from typing import Mapping, Any
+from multiprocessing import Queue
 from time import sleep
 import sys, os
 from draco.interfaces.telegram_interface import TelegramInterface
@@ -9,6 +10,7 @@ class TelegramBot(Process):
         self,
         config: Mapping[str, Any],
         memory_proxy: tuple,
+        telegram_queue: Queue,
         name: str
         #log_queue: Type[Queue],
         #error_queue: Type[Queue]
@@ -31,6 +33,7 @@ class TelegramBot(Process):
         self._config = config.copy()
         self.system_status_proxy = memory_proxy[0]
         self.system_status_lock = memory_proxy[1]
+        self.telegram_queue = telegram_queue
         self._name = name
         #self._log_queue = log_queue
         #self._error_queue = error_queue
@@ -42,13 +45,18 @@ class TelegramBot(Process):
         teleti = None
         pid = os.getpid()
         try:
-            teleti = TelegramInterface(config=self._config, memory_proxy=(self.system_status_proxy, self.system_status_lock), name=self._name)
+            teleti = TelegramInterface(config=self._config, 
+                                       memory_proxy=(self.system_status_proxy, self.system_status_lock), 
+                                       telegram_queue=self.telegram_queue, 
+                                       name=self._name)
             while not success:
                 success = teleti.init()
                 sleep(0.1)
             print(f"telegram bot '{self._name}' successfully initialized")
+            self.telegram_queue.put(f"telegram bot '{self._name}' successfully initialized")
             while True:
-                sleep(10)
+                teleti.step_log()
+                sleep(0.2)
 
         except Exception as error:
             print(f"Process {pid} - " + repr(error))

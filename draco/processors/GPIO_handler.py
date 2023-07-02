@@ -1,15 +1,15 @@
-from multiprocessing import Process, Manager
-from typing import Mapping, Type, Any
+from multiprocessing import Process, Queue
+from typing import Mapping, Any
 from time import sleep
 import sys, os
-import RPi.GPIO as GPIO
 from draco.interfaces.relay_shield_interface import KS0212Interface
 
-class HardwareHandler(Process):
+class GPIOHandler(Process):
     def __init__(
         self,
         config: Mapping[str, Any],
         memory_proxy: tuple,
+        telegram_queue: Queue,
         name: str
         #log_queue: Type[Queue],
         #error_queue: Type[Queue]
@@ -32,6 +32,7 @@ class HardwareHandler(Process):
         self._config = config.copy()
         self.system_status_proxy = memory_proxy[0]
         self.system_status_lock = memory_proxy[1]
+        self.telegram_queue = telegram_queue
         self._name = name
         #self._log_queue = log_queue
         #self._error_queue = error_queue
@@ -40,18 +41,20 @@ class HardwareHandler(Process):
         self
     ) -> None:
         success = False
-        hwti = None
+        relayit = None
         pid = os.getpid()
         try:
-            hwti = KS0212Interface(config=self._config, 
+            relayit = KS0212Interface(config=self._config, 
                                    memory_proxy=(self.system_status_proxy, self.system_status_lock), 
+                                   telegram_queue=self.telegram_queue,
                                    name=self._name)
             while not success:
-                success = hwti.init()
+                success = relayit.init()
                 sleep(0.1)
             print(f"'{self._name}' successfully initialized")
+            self.telegram_queue.put(f"'{self._name}' successfully initialized")
             while True:
-                hwti.step() #Update GPIO values
+                relayit.step() #Update GPIO values
                 sleep(1)
 
         except Exception as error:
