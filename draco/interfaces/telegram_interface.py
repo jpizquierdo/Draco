@@ -26,8 +26,10 @@ class TelegramInterface(object):
         memory_proxy: tuple
             system_status_proxy
             system_status_lock
-        name : str
-            json field name
+        telegram_queue : Queue
+            telegram queue to send logging to main user
+        name: str
+            name in json file
         """
         config_draco = config.copy()
         if name in config:
@@ -76,12 +78,18 @@ class TelegramInterface(object):
             pass
     
     def _get_allowed_users(self, **kwargs):
+        """
+        Parse the dictionary from config file to read and append the allowed users.
+        """
         allowed = []
         for key in kwargs:
             allowed.append(int(keyring.get_password(self._config["namespace"], kwargs[key])))    
         return allowed
     
     def _handle(self, msg):
+        """
+        Function that handles the telegram telepot received messages
+        """
         chat_id = msg["chat"]["id"]
         command = msg["text"]
         if "@" in command: # to fix messages inside groups
@@ -104,6 +112,8 @@ class TelegramInterface(object):
                 self._toggle_valve(chat_id, 2)
             elif command == "/valve3":
                 self._toggle_valve(chat_id, 3)
+            elif command == "/holidays":
+                self._toggle_holidays(chat_id)
     
     def _check_status(self, chat_id):
         """
@@ -122,8 +132,9 @@ class TelegramInterface(object):
         """
         self.system_status_lock.acquire()
         self.system_status_proxy["waterpump"] = int(not self.system_status_proxy["waterpump"])
-        self._bot.sendMessage(chat_id, f"{__name__}: Request Pump Status to: {self.system_status_proxy['waterpump']}")
+        self._bot.sendMessage(chat_id, f"{__name__.split('.')[-1]}: Request Pump Status to {self.system_status_proxy['waterpump']}")
         self.system_status_lock.release()
+    
     
     def _toggle_valve(self, chat_id, valve_number):
         """
@@ -131,5 +142,14 @@ class TelegramInterface(object):
         """
         self.system_status_lock.acquire()
         self.system_status_proxy[f"valve{valve_number}"] = int(not self.system_status_proxy[f"valve{valve_number}"])
-        self._bot.sendMessage(chat_id, f"{__name__}: Request Valve {valve_number} Status to: {self.system_status_proxy[f'valve{valve_number}']}")
+        self._bot.sendMessage(chat_id, f"{__name__.split('.')[-1]}: Request Valve {valve_number} Status to {self.system_status_proxy[f'valve{valve_number}']}")
+        self.system_status_lock.release()
+
+    def _toggle_holidays(self, chat_id):
+        """
+        This method toggle the value of the holidays mode
+        """
+        self.system_status_lock.acquire()
+        self.system_status_proxy["holidays"] = int(not self.system_status_proxy["holidays"])
+        self._bot.sendMessage(chat_id, f"{__name__.split('.')[-1]}: Request Holidays Mode to {self.system_status_proxy['holidays']}")
         self.system_status_lock.release()

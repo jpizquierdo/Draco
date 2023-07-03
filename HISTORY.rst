@@ -3,6 +3,13 @@
 History
 -------
 
+0.0.4 (2013-07-03)
+++++++++++++++++++
+
+- New scheduler (``system_scheduler``) process to be able to schedule watering (or whatever).
+- New status, holidays, associated with the scheduler functions.
+- Some documentation comments in all the files.
+
 0.0.3 (2013-07-02)
 ++++++++++++++++++
 

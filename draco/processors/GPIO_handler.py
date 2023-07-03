@@ -11,8 +11,6 @@ class GPIOHandler(Process):
         memory_proxy: tuple,
         telegram_queue: Queue,
         name: str
-        #log_queue: Type[Queue],
-        #error_queue: Type[Queue]
     ) -> None:
         """
         Data consumer constructor.
@@ -24,7 +22,10 @@ class GPIOHandler(Process):
         memory_proxy: tuple
             system_status_proxy
             system_status_lock
+        telegram_queue : Queue
+            telegram queue to send logging to main user
         name: str
+            name in json file
         ----------
         """
 
@@ -34,8 +35,6 @@ class GPIOHandler(Process):
         self.system_status_lock = memory_proxy[1]
         self.telegram_queue = telegram_queue
         self._name = name
-        #self._log_queue = log_queue
-        #self._error_queue = error_queue
 
     def run(
         self
@@ -54,7 +53,8 @@ class GPIOHandler(Process):
             print(f"'{self._name}' - {pid} successfully initialized")
             self.telegram_queue.put(f"Process {pid} \- '{self._name}' successfully initialized")
             while True:
-                relayit.step() #Update GPIO values
+                #Update GPIO values
+                relayit.step()
                 sleep(1)
 
         except Exception as error:

@@ -1,11 +1,10 @@
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 from typing import Mapping, Any
-from multiprocessing import Queue
 from time import sleep
 import sys, os
-from draco.interfaces.telegram_interface import TelegramInterface
+from draco.interfaces.scheduler_interface import SchedulerInterface
 
-class TelegramBot(Process):
+class SystemScheduler(Process):
     def __init__(
         self,
         config: Mapping[str, Any],
@@ -29,6 +28,7 @@ class TelegramBot(Process):
             name in json file
         ----------
         """
+
         super().__init__()
         self._config = config.copy()
         self.system_status_proxy = memory_proxy[0]
@@ -40,28 +40,28 @@ class TelegramBot(Process):
         self
     ) -> None:
         success = False
-        teleti = None
+        schedit = None
         pid = os.getpid()
         try:
-            teleti = TelegramInterface(config=self._config, 
-                                       memory_proxy=(self.system_status_proxy, self.system_status_lock), 
-                                       telegram_queue=self.telegram_queue, 
-                                       name=self._name)
+            schedit = SchedulerInterface(config=self._config, 
+                                   memory_proxy=(self.system_status_proxy, self.system_status_lock), 
+                                   telegram_queue=self.telegram_queue,
+                                   name=self._name)
             while not success:
-                success = teleti.init()
-                sleep(0.5)
-            print(f"telegram bot '{self._name}' - {pid} successfully initialized")
-            self.telegram_queue.put(f"Process {pid} \- telegram bot '{self._name}' successfully initialized")
-            while True:
-                # Log to telegram
-                teleti.step_log()
+                success = schedit.init()
                 sleep(0.2)
+            print(f"'{self._name}' - {pid} successfully initialized")
+            self.telegram_queue.put(f"Process {pid} \- '{self._name}' successfully initialized")
+            while True:
+                #Update scheduler
+                schedit.step()
+                sleep(1)
 
         except Exception as error:
             print(f"Process {pid} - " + repr(error))
             success = False
         finally:
-            pass # close telegram bot
+            pass
 
         exit_code = int(not success)
         sys.exit(exit_code)

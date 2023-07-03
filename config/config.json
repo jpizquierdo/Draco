@@ -13,5 +13,10 @@
     "Valve1": 22,
     "Valve2": 6,
     "Valve3": 26
+  },
+  "scheduler": {
+    "water_time1": 60,
+    "water_time2": 120,
+    "water_time3": 360
   }
 }

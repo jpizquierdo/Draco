@@ -3,6 +3,7 @@ from pathlib import Path
 from multiprocessing import Manager, Queue
 from draco.processors.telegram_bot import TelegramBot
 from draco.processors.GPIO_handler import GPIOHandler
+from draco.processors.system_scheduler import SystemScheduler
 from draco.utils.types import Status
 import argparse
 import json
@@ -47,6 +48,11 @@ def main(manager) -> int:
                                          memory_proxy=(system_status_proxy, system_status_lock), 
                                          telegram_queue=q_telegram_log,
                                          name="relayshield"))
+        #System Scheduler
+        processes.append(SystemScheduler(config=config, 
+                                         memory_proxy=(system_status_proxy, system_status_lock), 
+                                         telegram_queue=q_telegram_log,
+                                         name="scheduler"))
 
         # Start processes
         for process in processes:
@@ -65,7 +71,6 @@ def main(manager) -> int:
     finally:
         GPIO.cleanup()
         q_telegram_log.close()
-        print("GPIO cleanup performed due to exitting app")
         if processes is not None:
             [p.kill() for p in processes if p.is_alive()]
     return int(not success)

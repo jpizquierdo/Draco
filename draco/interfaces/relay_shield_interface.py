@@ -45,7 +45,7 @@ class KS0212Interface(object):
         name: str = "relayshield"
     ) -> None:
         """
-       KS0212 keyestudio RPI 4-channel Relay Shield interface constructor.
+        KS0212 keyestudio RPI 4-channel Relay Shield interface constructor.
 
         Parameters
         ----------
@@ -54,8 +54,10 @@ class KS0212Interface(object):
         memory_proxy: tuple
             system_status_proxy
             system_status_lock
-        name : str
-            json field name
+        telegram_queue : Queue
+            telegram queue to send logging to main user
+        name: str
+            name in json file
         """
         config_draco = config.copy()
         if name in config:
@@ -102,6 +104,14 @@ class KS0212Interface(object):
     def step(
         self,
     ) -> bool:
+        """
+        Step function to update the Relays status.
+
+        Returns
+        -------
+        success : bool
+            True if successful initialisation, False otherwise.
+        """
         success = True
         try:
             self.system_status_lock.acquire()
@@ -115,46 +125,94 @@ class KS0212Interface(object):
             success = False
         return success
     
-    def _gpio_setup(self, **kwargs):
+    def _gpio_setup(self, **kwargs) -> None:
+        """
+        This method setup as outputs the GPIOs from the json config file.
+
+        Parameters
+        ----------
+        **config : Dict
+        """
         for key in kwargs:
             GPIO.setup(kwargs[key], GPIO.OUT)
     
     def handle_relay(self, channel, value):
+        """
+        Method to handle the relay. It only takes effect if the GPIO HW value has changed.
+
+        Parameters
+        ----------
+        channel : int
+            Channel integer value. Usually from intenum self.Channel
+        value : int
+            1 means set to high, while 0 means set to low
+        """
         # only handles the GPIO HW if the value has changed.
         if GPIO.input(channel) != value:
             GPIO.output(channel, value)
-            self.telegram_queue.put(f"{__name__}: {channel.name} set to {value}")
+            self._log(f"{channel.name} set to {value}")
     
     def start_waterPump(self):
+        """
+        Set to 1 GPIO waterpump
+        """
         GPIO.output(self.Channel.WATERPUMP, 1)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.WATERPUMP.name} set to 1")
+        self._log(f"{self.Channel.WATERPUMP.name} set to 1")
 
     def stop_waterPump(self):
+        """
+        Set to 0 GPIO waterpump
+        """
         GPIO.output(self.Channel.WATERPUMP, 0)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.WATERPUMP.name} set to 0")
+        self._log(f"{self.Channel.WATERPUMP.name} set to 0")
     
     def start_valve1(self):
+        """
+        Set to 1 GPIO valve1
+        """
         GPIO.output(self.Channel.VALVE1, 1)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE1.name} set to 1")
+        self._log(f"{self.Channel.VALVE1.name} set to 1")
 
     def stop_valve1(self):
+        """
+        Set to 0 GPIO valve1
+        """
         GPIO.output(self.Channel.VALVE1, 0)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE1.name} set to 0")
+        self._log(f"{self.Channel.VALVE1.name} set to 0")
     
     def start_valve2(self):
+        """
+        Set to 1 GPIO valve2
+        """
         GPIO.output(self.Channel.VALVE2, 1)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE2.name} set to 1")
+        self._log(f"{self.Channel.VALVE2.name} set to 1")
 
     def stop_valve2(self):
+        """
+        Set to 0 GPIO valve2
+        """
         GPIO.output(self.Channel.VALVE2, 0)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE2.name} set to 0")
+        self._log(f"{self.Channel.VALVE2.name} set to 0")
     
     def start_valve3(self):
+        """
+        Set to 1 GPIO valve3
+        """
         GPIO.output(self.Channel.VALVE3, 1)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE3.name} set to 1")
+        self._log(f"{self.Channel.VALVE3.name} set to 1")
 
     def stop_valve3(self):
+        """
+        Set to 0 GPIO valve3
+        """
         GPIO.output(self.Channel.VALVE3, 0)
-        self.telegram_queue.put(f"{__name__}: {self.Channel.VALVE3.name} set to 0")
+        self._log(f"{self.Channel.VALVE3.name} set to 0")
+    
+    def _log(self, msg):
+        """
+        Logging function that queues message for telegram
+        #TODO: will implement a python logger
+        """
+        self.telegram_queue.put(f"{__name__.split('.')[-1]}: {msg}")
     
   
