@@ -3,6 +3,11 @@
 History
 -------
 
+0.0.5 (2013-07-05)
+++++++++++++++++++
+
+- Initial version of the transition of telepot to python-telegram-bot. Telepot is deprecated and not robust and has to be changed. ``telegram_interface.py`` has been fully updated with new library.
+
 0.0.4 (2013-07-03)
 ++++++++++++++++++
 
