@@ -4,13 +4,14 @@ from time import sleep
 import sys, os
 from draco.interfaces.scheduler_interface import SchedulerInterface
 
+
 class SystemScheduler(Process):
     def __init__(
         self,
         config: Mapping[str, Any],
         memory_proxy: tuple,
         telegram_queue: Queue,
-        name: str
+        name: str,
     ) -> None:
         """
         Data consumer constructor.
@@ -36,24 +37,26 @@ class SystemScheduler(Process):
         self.telegram_queue = telegram_queue
         self._name = name
 
-    def run(
-        self
-    ) -> None:
+    def run(self) -> None:
         success = False
         schedit = None
         pid = os.getpid()
         try:
-            schedit = SchedulerInterface(config=self._config, 
-                                   memory_proxy=(self.system_status_proxy, self.system_status_lock), 
-                                   telegram_queue=self.telegram_queue,
-                                   name=self._name)
+            schedit = SchedulerInterface(
+                config=self._config,
+                memory_proxy=(self.system_status_proxy, self.system_status_lock),
+                telegram_queue=self.telegram_queue,
+                name=self._name,
+            )
             while not success:
                 success = schedit.init()
                 sleep(0.2)
             print(f"'{self._name}' - {pid} successfully initialized")
-            self.telegram_queue.put(f"Process {pid} \- '{self._name}' successfully initialized")
+            self.telegram_queue.put(
+                f"Process {pid} \- '{self._name}' successfully initialized"
+            )
             while True:
-                #Update scheduler
+                # Update scheduler
                 schedit.step()
                 sleep(1)
 

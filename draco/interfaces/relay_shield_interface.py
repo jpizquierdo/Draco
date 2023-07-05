@@ -4,10 +4,12 @@ import os
 import RPi.GPIO as GPIO
 from enum import IntEnum, unique
 
+
 @unique
 class GPIO_Mode(IntEnum):
     BCM_MODE = 11
     BOARD_MODE = 10
+
 
 class KS0212Interface(object):
     """
@@ -17,10 +19,10 @@ class KS0212Interface(object):
     ----------
     Control Signal: TTL Level
     Rated Load:
-        10A 250VAC   
-        10A 125VAC     
-        10A 30VDC    
-        10A 28VDC   
+        10A 250VAC
+        10A 125VAC
+        10A 30VDC
+        10A 28VDC
     Rated Current: 10A(NO) 5A(NC)
     Max Switching Voltage: 250VAC 30VDC
     Contact Time: under 10ms
@@ -33,16 +35,17 @@ class KS0212Interface(object):
     J3 GPIO pin: 22
     J4 GPIO pin: 6
     J5 GPIO pin: 26
-    
+
 
     https://wiki.keyestudio.com/KS0212_keyestudio_RPI_4-channel_Relay_Shield
     """
+
     def __init__(
         self,
         config: Mapping[str, Any] = {},
         memory_proxy: tuple = (),
         telegram_queue: Queue = None,
-        name: str = "relayshield"
+        name: str = "relayshield",
     ) -> None:
         """
         KS0212 keyestudio RPI 4-channel Relay Shield interface constructor.
@@ -89,18 +92,22 @@ class KS0212Interface(object):
             if GPIO.getmode() == None:
                 GPIO.setmode(GPIO.BCM)
             self._gpio_setup(**self._config)
-            self.Channel = IntEnum('Channel', {"WATERPUMP" : self._config["WaterPump"],
-                                               "VALVE1" : self._config["Valve1"],
-                                               "VALVE2" : self._config["Valve2"],
-                                               "VALVE3" : self._config["Valve3"],
-                                               })
+            self.Channel = IntEnum(
+                "Channel",
+                {
+                    "WATERPUMP": self._config["WaterPump"],
+                    "VALVE1": self._config["Valve1"],
+                    "VALVE2": self._config["Valve2"],
+                    "VALVE3": self._config["Valve3"],
+                },
+            )
 
         except Exception as error:
             print(f"Process {self._pid} - " + repr(error))
             success = False
 
         return success
-    
+
     def step(
         self,
     ) -> bool:
@@ -124,7 +131,7 @@ class KS0212Interface(object):
         except:
             success = False
         return success
-    
+
     def _gpio_setup(self, **kwargs) -> None:
         """
         This method setup as outputs the GPIOs from the json config file.
@@ -135,7 +142,7 @@ class KS0212Interface(object):
         """
         for key in kwargs:
             GPIO.setup(kwargs[key], GPIO.OUT)
-    
+
     def handle_relay(self, channel, value):
         """
         Method to handle the relay. It only takes effect if the GPIO HW value has changed.
@@ -151,7 +158,7 @@ class KS0212Interface(object):
         if GPIO.input(channel) != value:
             GPIO.output(channel, value)
             self._log(f"{channel.name} set to {value}")
-    
+
     def start_waterPump(self):
         """
         Set to 1 GPIO waterpump
@@ -165,7 +172,7 @@ class KS0212Interface(object):
         """
         GPIO.output(self.Channel.WATERPUMP, 0)
         self._log(f"{self.Channel.WATERPUMP.name} set to 0")
-    
+
     def start_valve1(self):
         """
         Set to 1 GPIO valve1
@@ -179,7 +186,7 @@ class KS0212Interface(object):
         """
         GPIO.output(self.Channel.VALVE1, 0)
         self._log(f"{self.Channel.VALVE1.name} set to 0")
-    
+
     def start_valve2(self):
         """
         Set to 1 GPIO valve2
@@ -193,7 +200,7 @@ class KS0212Interface(object):
         """
         GPIO.output(self.Channel.VALVE2, 0)
         self._log(f"{self.Channel.VALVE2.name} set to 0")
-    
+
     def start_valve3(self):
         """
         Set to 1 GPIO valve3
@@ -207,12 +214,10 @@ class KS0212Interface(object):
         """
         GPIO.output(self.Channel.VALVE3, 0)
         self._log(f"{self.Channel.VALVE3.name} set to 0")
-    
+
     def _log(self, msg):
         """
         Logging function that queues message for telegram
         #TODO: will implement a python logger
         """
         self.telegram_queue.put(f"{__name__.split('.')[-1]}: {msg}")
-    
-  

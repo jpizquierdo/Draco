@@ -3,22 +3,26 @@ import RPi.GPIO as GPIO
 from enum import IntEnum, unique
 import adafruit_dht
 
+
 @unique
 class Channel(IntEnum):
     MOISTURE = 1
     VALVE = 2
-	
+
+
 class Times(IntEnum):
-    WATER_S = 15 # watering time [s]
-    INTERVAL_H = 48*60*60 # water interval [h]
+    WATER_S = 15  # watering time [s]
+    INTERVAL_H = 48 * 60 * 60  # water interval [h]
+
 
 # GPIO setup
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(Channel.MOISTURE, GPIO.IN)
 GPIO.setup(Channel.VALVE, GPIO.OUT)
 
-#dht setup
+# dht setup
 dhtDevice = adafruit_dht.DHT11(board.D18)
+
 
 def get_temp():
     try:
@@ -32,6 +36,7 @@ def get_temp():
         dhtDevice.exit()
         raise error
 
+
 def get_humidity():
     try:
         humidity = dhtDevice.humidity
@@ -43,20 +48,22 @@ def get_humidity():
     except Exception as error:
         dhtDevice.exit()
         raise error
-    
+
+
 def main():
     try:
         while True:
             if GPIO.input(Channel.MOISTURE) == True:
-                GPIO.output(Channel.VALVE,True)
+                GPIO.output(Channel.VALVE, True)
                 sleep(Times.WATER_S)
-                GPIO.output(Channel.VALVE,False)
+                GPIO.output(Channel.VALVE, False)
                 sleep(Times.INTERVAL_H)
             else:
                 sleep(1)
     finally:
-        #cleanup the GPIO pins before ending
+        # cleanup the GPIO pins before ending
         GPIO.cleanup()
+
 
 if __name__ == "__main__":
     main()

@@ -2,14 +2,17 @@ from time import sleep
 from multiprocessing import Manager, Process
 from typing import NamedTuple
 
+
 class Status(NamedTuple):
     """
     Status object to be shared in multiprocessing manager.
     """
+
     waterpump: int = -1
     valve1: int = -1
     valve1: int = -1
     valve3: int = -1
+
 
 def print_values(my_lock, status_proxy):
     while True:
@@ -19,7 +22,8 @@ def print_values(my_lock, status_proxy):
         for key in info:
             print(f"{key}:      {status_proxy[key]}")
         sleep(0.1)
-  
+
+
 def modify_waterpump(my_lock, status_proxy):
     while True:
         my_lock.acquire()
@@ -32,14 +36,15 @@ def modify_waterpump(my_lock, status_proxy):
         sleep(0.3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     my_dict = Status()
     my_dict = my_dict._asdict()
 
-
-    manager = Manager() # create a manager
-    status_proxy = manager.dict(my_dict) # create a proxy dict
-    my_lock = manager.Lock() #create lock object to be able to operate with the status proxy in multiprocess (read and write in multiple process without memory breaking)
+    manager = Manager()  # create a manager
+    status_proxy = manager.dict(my_dict)  # create a proxy dict
+    my_lock = (
+        manager.Lock()
+    )  # create lock object to be able to operate with the status proxy in multiprocess (read and write in multiple process without memory breaking)
 
     # creating new processes
     p1 = Process(target=modify_waterpump, args=(my_lock, status_proxy))

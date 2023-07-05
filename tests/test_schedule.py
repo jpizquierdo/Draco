@@ -4,8 +4,10 @@
 import schedule
 import time
 
+
 def job():
     print("I'm working...")
+
 
 # Run job every 3 second/minute/hour/day/week,
 # Starting 3 second/minute/hour/day/week from now
@@ -40,16 +42,17 @@ while True:
     time.sleep(1)
 
 
-
 # Run a job once
 import schedule
 import time
+
 
 def job_that_executes_once():
     # Do some work that only needs to happen once...
     return schedule.CancelJob
 
-schedule.every().day.at('22:30').do(job_that_executes_once)
+
+schedule.every().day.at("22:30").do(job_that_executes_once)
 
 while True:
     schedule.run_pending()

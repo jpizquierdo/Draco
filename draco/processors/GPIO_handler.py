@@ -4,13 +4,14 @@ from time import sleep
 import sys, os
 from draco.interfaces.relay_shield_interface import KS0212Interface
 
+
 class GPIOHandler(Process):
     def __init__(
         self,
         config: Mapping[str, Any],
         memory_proxy: tuple,
         telegram_queue: Queue,
-        name: str
+        name: str,
     ) -> None:
         """
         Data consumer constructor.
@@ -36,24 +37,26 @@ class GPIOHandler(Process):
         self.telegram_queue = telegram_queue
         self._name = name
 
-    def run(
-        self
-    ) -> None:
+    def run(self) -> None:
         success = False
         relayit = None
         pid = os.getpid()
         try:
-            relayit = KS0212Interface(config=self._config, 
-                                   memory_proxy=(self.system_status_proxy, self.system_status_lock), 
-                                   telegram_queue=self.telegram_queue,
-                                   name=self._name)
+            relayit = KS0212Interface(
+                config=self._config,
+                memory_proxy=(self.system_status_proxy, self.system_status_lock),
+                telegram_queue=self.telegram_queue,
+                name=self._name,
+            )
             while not success:
                 success = relayit.init()
                 sleep(0.1)
             print(f"'{self._name}' - {pid} successfully initialized")
-            self.telegram_queue.put(f"Process {pid} \- '{self._name}' successfully initialized")
+            self.telegram_queue.put(
+                f"Process {pid} \- '{self._name}' successfully initialized"
+            )
             while True:
-                #Update GPIO values
+                # Update GPIO values
                 relayit.step()
                 sleep(1)
 
