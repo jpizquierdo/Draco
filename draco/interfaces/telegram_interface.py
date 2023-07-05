@@ -164,13 +164,9 @@ class TelegramInterface(object):
         info = self.system_status_proxy._getvalue()
         self.system_status_lock.release()
         user = update.effective_user
-        await update.message.reply_html(
-            rf"Hi {user.mention_html()}!",
-            reply_markup=ForceReply(selective=True),
-        )
         await update.message.reply_markdown("*__System Status__*")
         for key in info:
-            update.message.reply_text(f"{key}: {info[key]}")
+            await update.message.reply_text(f"{key}: {info[key]}")
 
     async def _toggle_pump(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -182,7 +178,7 @@ class TelegramInterface(object):
         self.system_status_proxy["waterpump"] = int(
             not self.system_status_proxy["waterpump"]
         )
-        update.message.reply_text(
+        await update.message.reply_text(
             f"{__name__.split('.')[-1]}: Request Pump Status to {self.system_status_proxy['waterpump']}"
         )
         self.system_status_lock.release()
@@ -197,7 +193,7 @@ class TelegramInterface(object):
         self.system_status_proxy[f"valve{valve_number}"] = int(
             not self.system_status_proxy[f"valve{valve_number}"]
         )
-        update.message.reply_text(
+        await update.message.reply_text(
             f"{__name__.split('.')[-1]}: Request Valve {valve_number} Status to {self.system_status_proxy[f'valve{valve_number}']}"
         )
         self.system_status_lock.release()
@@ -212,7 +208,7 @@ class TelegramInterface(object):
         self.system_status_proxy["holidays"] = int(
             not self.system_status_proxy["holidays"]
         )
-        update.message.reply_text(
+        await update.message.reply_text(
             f"{__name__.split('.')[-1]}: Request Holidays Mode to {self.system_status_proxy['holidays']}"
         )
         self.system_status_lock.release()
