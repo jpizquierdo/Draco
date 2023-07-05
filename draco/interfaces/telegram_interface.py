@@ -4,6 +4,7 @@ import queue
 import os
 import keyring
 import random
+from functools import partial
 import datetime
 from telegram import ForceReply, Update
 from telegram.ext import (
@@ -94,21 +95,21 @@ class TelegramInterface(object):
             self.application.add_handler(
                 CommandHandler(
                     command="valve1",
-                    callback=self._toggle_valve(valve_number=1),
+                    callback=partial(self._toggle_valve,valve_number=1),
                     filters=filters.Chat(self._allowed_users),
                 )
             )
             self.application.add_handler(
                 CommandHandler(
                     command="valve2",
-                    callback=self._toggle_valve(valve_number=2),
+                    callback=partial(self._toggle_valve,valve_number=2),
                     filters=filters.Chat(self._allowed_users),
                 )
             )
             self.application.add_handler(
                 CommandHandler(
                     command="valve3",
-                    callback=self._toggle_valve(valve_number=3),
+                    callback=partial(self._toggle_valve,valve_number=3),
                     filters=filters.Chat(self._allowed_users),
                 )
             )
