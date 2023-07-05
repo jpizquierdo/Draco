@@ -51,9 +51,9 @@ class TelegramBot(Process):
             while not success:
                 success = teleti.init()
                 sleep(0.5)
-            print(f"telegram bot '{self._name}' - {pid} successfully initialized")
+            print(f"'{self._name}' - {pid} successfully initialized")
             self.telegram_queue.put(
-                f"Process {pid} \- telegram bot '{self._name}' successfully initialized"
+                f"Process {pid} - '{self._name}' successfully initialized"
             )
             while True:
                 # Log to telegram

@@ -3,9 +3,7 @@ from multiprocessing import Queue
 import queue
 import os
 import keyring
-import random
 from functools import partial
-import datetime
 from telegram import ForceReply, Update
 from telegram.ext import (
     Application,
@@ -13,6 +11,7 @@ from telegram.ext import (
     ContextTypes,
     MessageHandler,
     filters,
+    CallbackContext,
 )
 
 
@@ -95,21 +94,21 @@ class TelegramInterface(object):
             self.application.add_handler(
                 CommandHandler(
                     command="valve1",
-                    callback=partial(self._toggle_valve,valve_number=1),
+                    callback=partial(self._toggle_valve, valve_number=1),
                     filters=filters.Chat(self._allowed_users),
                 )
             )
             self.application.add_handler(
                 CommandHandler(
                     command="valve2",
-                    callback=partial(self._toggle_valve,valve_number=2),
+                    callback=partial(self._toggle_valve, valve_number=2),
                     filters=filters.Chat(self._allowed_users),
                 )
             )
             self.application.add_handler(
                 CommandHandler(
                     command="valve3",
-                    callback=partial(self._toggle_valve,valve_number=3),
+                    callback=partial(self._toggle_valve, valve_number=3),
                     filters=filters.Chat(self._allowed_users),
                 )
             )
@@ -136,10 +135,9 @@ class TelegramInterface(object):
         This methods will check the queue and log the messages from other processes to self.logging_chat_id
         """
         try:
+            bot = CallbackContext(self.application)
             msg = self.telegram_queue.get_nowait()
-            await self.application.bot.send_message(
-                chat_id=self.logging_chat_id, text=msg
-            )
+            await bot.send_message(chat_id=self.logging_chat_id, text=msg)
         except queue.Empty:
             pass
 

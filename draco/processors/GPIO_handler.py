@@ -53,7 +53,7 @@ class GPIOHandler(Process):
                 sleep(0.1)
             print(f"'{self._name}' - {pid} successfully initialized")
             self.telegram_queue.put(
-                f"Process {pid} \- '{self._name}' successfully initialized"
+                f"Process {pid} - '{self._name}' successfully initialized"
             )
             while True:
                 # Update GPIO values
