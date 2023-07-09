@@ -3,10 +3,16 @@ from multiprocessing import Queue
 import queue
 import os
 import keyring
-import random
-import datetime
-import telepot
-from telepot.loop import MessageLoop
+from functools import partial
+from telegram import Update
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+    CallbackContext,
+)
 
 
 class TelegramInterface(object):
@@ -46,6 +52,7 @@ class TelegramInterface(object):
             )
         )
         self._pid = os.getpid()
+        self._name = name
         self._allowed_users = []
         self._api_key = ""
 
@@ -68,20 +75,78 @@ class TelegramInterface(object):
             self._api_key = keyring.get_password(
                 self._config["namespace"], self._config["api"]
             )
-            self._bot = telepot.Bot(self._api_key)
-            MessageLoop(self._bot, self._handle).run_as_thread()
+            # Create the Application and pass it your bot's token.
+            self.application = Application.builder().token(self._api_key).build()
+            # on different commands - answer in Telegram
+            self.application.add_handler(
+                CommandHandler(
+                    command="status",
+                    callback=self._check_status,
+                    filters=filters.Chat(self._allowed_users),
+                )
+            )
+            self.application.add_handler(
+                CommandHandler(
+                    command="pump",
+                    callback=self._toggle_pump,
+                    filters=filters.Chat(self._allowed_users),
+                )
+            )
+            self.application.add_handler(
+                CommandHandler(
+                    command="valve1",
+                    callback=partial(self._toggle_valve, valve_number=1),
+                    filters=filters.Chat(self._allowed_users),
+                )
+            )
+            self.application.add_handler(
+                CommandHandler(
+                    command="valve2",
+                    callback=partial(self._toggle_valve, valve_number=2),
+                    filters=filters.Chat(self._allowed_users),
+                )
+            )
+            self.application.add_handler(
+                CommandHandler(
+                    command="valve3",
+                    callback=partial(self._toggle_valve, valve_number=3),
+                    filters=filters.Chat(self._allowed_users),
+                )
+            )
+            self.application.add_handler(
+                CommandHandler(
+                    command="holidays",
+                    callback=self._toggle_holidays,
+                    filters=filters.Chat(self._allowed_users),
+                )
+            )
+            # on non command i.e message - echo the message on Telegram
+            self.application.add_handler(
+                MessageHandler(filters.TEXT & ~filters.COMMAND, None)
+            )
+            # Step log runninng al 200ms
+            context = CallbackContext(self.application)
+            context.job_queue.run_repeating(callback=self.step_log, interval=0.2)
+            # logging info
+            print(f"'{self._name}' - {self._pid} successfully initialized")
+            self.telegram_queue.put(
+                f"Process {self._pid} - '{self._name}' successfully initialized"
+            )
+            # Run the bot until the user presses Ctrl-C
+            self.application.run_polling(allowed_updates=Update.ALL_TYPES)
         except Exception as error:
             print(f"Process {self._pid} - " + repr(error))
             success = False
         return success
 
-    def step_log(self) -> None:
+    # update: Update, context: ContextTypes.DEFAULT_TYPE
+    async def step_log(self, context: CallbackContext) -> None:
         """
         This methods will check the queue and log the messages from other processes to self.logging_chat_id
         """
         try:
             msg = self.telegram_queue.get_nowait()
-            self._bot.sendMessage(self.logging_chat_id, f"{msg}")
+            await context.bot.send_message(chat_id=self.logging_chat_id, text=msg)
         except queue.Empty:
             pass
 
@@ -96,50 +161,22 @@ class TelegramInterface(object):
             )
         return allowed
 
-    def _handle(self, msg):
-        """
-        Function that handles the telegram telepot received messages
-        """
-        chat_id = msg["chat"]["id"]
-        command = msg["text"]
-        if "@" in command:  # to fix messages inside groups
-            command = command.split("@")[0]
-        if chat_id in self._allowed_users:
-            print(f"Received command {command}")
-            if command == "/random":
-                self._bot.sendMessage(chat_id, random.randint(1, 6))
-            elif command == "/date":
-                self._bot.sendMessage(chat_id, str(datetime.datetime.now()))
-            elif command == "/photo":
-                self._bot.sendPhoto(
-                    chat_id,
-                    "https://sklad500.ru/wp-content/uploads/2019/09/teleport02-1000x526.jpeg",
-                )
-            elif command == "/status":
-                self._check_status(chat_id)
-            elif command == "/pump":
-                self._toggle_pump(chat_id)
-            elif command == "/valve1":
-                self._toggle_valve(chat_id, 1)
-            elif command == "/valve2":
-                self._toggle_valve(chat_id, 2)
-            elif command == "/valve3":
-                self._toggle_valve(chat_id, 3)
-            elif command == "/holidays":
-                self._toggle_holidays(chat_id)
-
-    def _check_status(self, chat_id):
+    async def _check_status(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
         """
         This method sends to the bot the system status data
         """
         self.system_status_lock.acquire()
         info = self.system_status_proxy._getvalue()
         self.system_status_lock.release()
-        self._bot.sendMessage(chat_id, "*__System Status__*", parse_mode="MarkdownV2")
+        await update.message.reply_markdown("*System Status*")
         for key in info:
-            self._bot.sendMessage(chat_id, f"{key}: {info[key]}")
+            await update.message.reply_text(f"{key}: {info[key]}")
 
-    def _toggle_pump(self, chat_id):
+    async def _toggle_pump(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
         """
         This method toggle the value of the pump
         """
@@ -147,13 +184,14 @@ class TelegramInterface(object):
         self.system_status_proxy["waterpump"] = int(
             not self.system_status_proxy["waterpump"]
         )
-        self._bot.sendMessage(
-            chat_id,
-            f"{__name__.split('.')[-1]}: Request Pump Status to {self.system_status_proxy['waterpump']}",
+        await update.message.reply_text(
+            f"{__name__.split('.')[-1]}: Request Pump Status to {self.system_status_proxy['waterpump']}"
         )
         self.system_status_lock.release()
 
-    def _toggle_valve(self, chat_id, valve_number):
+    async def _toggle_valve(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE, valve_number
+    ) -> None:
         """
         This method toggle the value of the valves 1, 2, 3
         """
@@ -161,13 +199,14 @@ class TelegramInterface(object):
         self.system_status_proxy[f"valve{valve_number}"] = int(
             not self.system_status_proxy[f"valve{valve_number}"]
         )
-        self._bot.sendMessage(
-            chat_id,
-            f"{__name__.split('.')[-1]}: Request Valve {valve_number} Status to {self.system_status_proxy[f'valve{valve_number}']}",
+        await update.message.reply_text(
+            f"{__name__.split('.')[-1]}: Request Valve {valve_number} Status to {self.system_status_proxy[f'valve{valve_number}']}"
         )
         self.system_status_lock.release()
 
-    def _toggle_holidays(self, chat_id):
+    async def _toggle_holidays(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
         """
         This method toggle the value of the holidays mode
         """
@@ -175,8 +214,7 @@ class TelegramInterface(object):
         self.system_status_proxy["holidays"] = int(
             not self.system_status_proxy["holidays"]
         )
-        self._bot.sendMessage(
-            chat_id,
-            f"{__name__.split('.')[-1]}: Request Holidays Mode to {self.system_status_proxy['holidays']}",
+        await update.message.reply_text(
+            f"{__name__.split('.')[-1]}: Request Holidays Mode to {self.system_status_proxy['holidays']}"
         )
         self.system_status_lock.release()

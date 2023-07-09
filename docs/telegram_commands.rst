@@ -1,12 +1,6 @@
 
 Botfather commands list 
 ======================= 
-random - Random number
-
-date - Current date
-
-photo - Photo from URL
-
 status - System Status
 
 pump - Toggle pump
