@@ -48,17 +48,9 @@ class TelegramBot(Process):
                 telegram_queue=self.telegram_queue,
                 name=self._name,
             )
-            while not success:
-                success = teleti.init()
-                sleep(0.5)
-            print(f"'{self._name}' - {pid} successfully initialized")
-            self.telegram_queue.put(
-                f"Process {pid} - '{self._name}' successfully initialized"
-            )
             while True:
-                # Log to telegram
-                teleti.step_log()
-                sleep(0.2)
+                # In this case, it wont termine the execution of init, it will be an infinite loop with asyncio functionalities
+                success = teleti.init()
 
         except Exception as error:
             print(f"Process {pid} - " + repr(error))

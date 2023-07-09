@@ -3,6 +3,13 @@
 History
 -------
 
+0.0.6 (2013-07-09)
+++++++++++++++++++
+
+- Transition of telepot to python-telegram-bot. Telepot is deprecated and not robust and has to be changed. ``telegram_interface.py`` has been fully updated with new library.
+- PTB (python-telegram-bot) has been changed to python-telegram-bot[job-queue] to be able to use the asynchrnous logging.
+- ``telegram_bot.py`` process has been updated to not wait for the end of the telegram_interface.init(). This is an infinite loop now.
+
 0.0.5 (2013-07-05)
 ++++++++++++++++++
 

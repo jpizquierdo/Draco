@@ -4,7 +4,7 @@ import queue
 import os
 import keyring
 from functools import partial
-from telegram import ForceReply, Update
+from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -52,6 +52,7 @@ class TelegramInterface(object):
             )
         )
         self._pid = os.getpid()
+        self._name = name
         self._allowed_users = []
         self._api_key = ""
 
@@ -123,6 +124,14 @@ class TelegramInterface(object):
             self.application.add_handler(
                 MessageHandler(filters.TEXT & ~filters.COMMAND, None)
             )
+            # Step log runninng al 200ms
+            context = CallbackContext(self.application)
+            context.job_queue.run_repeating(callback=self.step_log, interval=0.2)
+            # logging info
+            print(f"'{self._name}' - {self._pid} successfully initialized")
+            self.telegram_queue.put(
+                f"Process {self._pid} - '{self._name}' successfully initialized"
+            )
             # Run the bot until the user presses Ctrl-C
             self.application.run_polling(allowed_updates=Update.ALL_TYPES)
         except Exception as error:
@@ -130,14 +139,14 @@ class TelegramInterface(object):
             success = False
         return success
 
-    async def step_log(self) -> None:
+    # update: Update, context: ContextTypes.DEFAULT_TYPE
+    async def step_log(self, context: CallbackContext) -> None:
         """
         This methods will check the queue and log the messages from other processes to self.logging_chat_id
         """
         try:
-            bot = CallbackContext(self.application)
             msg = self.telegram_queue.get_nowait()
-            await bot.send_message(chat_id=self.logging_chat_id, text=msg)
+            await context.bot.send_message(chat_id=self.logging_chat_id, text=msg)
         except queue.Empty:
             pass
 
@@ -161,8 +170,7 @@ class TelegramInterface(object):
         self.system_status_lock.acquire()
         info = self.system_status_proxy._getvalue()
         self.system_status_lock.release()
-        user = update.effective_user
-        await update.message.reply_markdown("*__System Status__*")
+        await update.message.reply_markdown("*System Status*")
         for key in info:
             await update.message.reply_text(f"{key}: {info[key]}")
 
