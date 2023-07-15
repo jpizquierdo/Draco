@@ -1,0 +1,11 @@
+[Unit]
+Description=Raspberry pi 2 Draco Service
+Documentation=https://github.com/jpizquierdo/Draco
+After=network-online.target
+
+[Service]
+ExecStart=/home/pi/Draco/.venv/bin/python /home/pi/Draco/draco.py -c /home/pi/Draco/config/config.json
+restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
