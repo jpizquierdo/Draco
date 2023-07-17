@@ -15,8 +15,11 @@
     "Valve3": 26
   },
   "scheduler": {
-    "water_time1": 60,
-    "water_time2": 120,
-    "water_time3": 360
+    "holidays_frequency_days": 3,
+    "water_start_time_HH": "10",
+    "water_start_time_MM": "00",
+    "water_stop_time_HH": "10",
+    "water_stop_time_MM": "15",
+    "enable_alive_logging": false
   }
 }

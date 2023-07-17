@@ -37,7 +37,7 @@ class SchedulerInterface(object):
         self.system_status_lock = memory_proxy[1]
         self.telegram_queue = telegram_queue
         self._pid = os.getpid()
-        self.initial_holidays_state = None
+        self.current_holidays_state = None
 
     def init(
         self,
@@ -52,7 +52,7 @@ class SchedulerInterface(object):
         """
         success = True
         try:
-            self.initial_holidays_state = self._check_status()["holidays"]
+            self.current_holidays_state = self._check_status()["holidays"]
         except Exception as error:
             print(f"Process {self._pid} - " + repr(error))
             success = False
@@ -62,11 +62,11 @@ class SchedulerInterface(object):
         """
         This methods will check status and stop / run schedulers
         """
-        print(schedule.get_jobs())
+        # print(schedule.get_jobs())
         info = self._check_status()
         # Only setup the scheduler if value change
-        if self.initial_holidays_state != info["holidays"]:
-            self.initial_holidays_state = info["holidays"]
+        if self.current_holidays_state != info["holidays"]:
+            self.current_holidays_state = info["holidays"]
             self.setup_scheduler(info)
         schedule.run_pending()
 
@@ -76,17 +76,21 @@ class SchedulerInterface(object):
         """
         if info["holidays"]:
             self._log(f"Setting the holidays schedulers:")
-            self._log(f"- Alive logging")
-            self._log(f"- Summer watering")
-            schedule.every().day.at("22:00").do(self._alive_logging).tag(
-                "all", "holidays", "watchdog"
+            # Alive logging to send messages to telegram
+            if self._config["enable_alive_logging"]:
+                self._log(f"- Alive logging at 09:00 and 22:00")
+                schedule.every().day.at("22:00").do(self._alive_logging).tag(
+                    "all", "holidays", "watchdog"
+                )
+                schedule.every().day.at("09:00").do(self._alive_logging).tag(
+                    "all", "holidays", "watchdog"
+                )
+            self._log(
+                f"- Summer watering each {self._config['holidays_frequency_days']} days starting at {self._config['water_start_time_HH']}:{self._config['water_start_time_MM']} and stoping at {self._config['water_stop_time_HH']}:{self._config['water_stop_time_MM']}"
             )
-            schedule.every().day.at("09:00").do(self._alive_logging).tag(
-                "all", "holidays", "watchdog"
-            )
-            schedule.every().day.at("20:00").do(self._summer_watering).tag(
-                "all", "holidays", "watchdog"
-            )
+            schedule.every(self._config["holidays_frequency_days"]).days.at(
+                f"{self._config['water_start_time_HH']}:{self._config['water_start_time_MM']}"
+            ).do(self._summer_watering).tag("all", "holidays", "watchdog")
         else:
             self._log(f"Clearing the holidays schedulers")
             schedule.clear("holidays")
@@ -112,10 +116,12 @@ class SchedulerInterface(object):
         self._command_waterPump(value=1)
         self._command_valve(valve_number=2, value=1)
         # 15 minutes of watering TODO: put inside configuration
-        schedule.every().day.at("20:15").do(self._command_waterPump, value=0)
-        schedule.every().day.at("20:25").do(
-            self._command_valve, valve_number=2, value=0
-        )
+        schedule.every().day.at(
+            f"{self._config['water_stop_time_HH']}:{self._config['water_stop_time_MM']}"
+        ).do(self._command_waterPump, value=0)
+        schedule.every().day.at(
+            f"{self._config['water_stop_time_HH']}:{self._config['water_stop_time_MM']}"
+        ).do(self._command_valve, valve_number=2, value=0)
 
     def _command_waterPump(self, value):
         """

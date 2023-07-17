@@ -3,6 +3,13 @@
 History
 -------
 
+0.0.7 (2013-07-17)
+++++++++++++++++++
+
+- Update with custom starting and stoping time for the watering.
+- Also the frequency in days. All from .json file.
+- The alive logging has been conditionally with enable_alive_logging json file variable
+
 0.0.6 (2013-07-09)
 ++++++++++++++++++
 
