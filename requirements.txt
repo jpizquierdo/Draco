@@ -5,3 +5,7 @@ keyring==24.2.0
 python-telegram-bot[job-queue]==20.4
 schedule==1.2.0
 black==23.3.0
+numpy==1.25.1
+matplotlib==3.7.2
+opencv-python==4.8.0.74
+paho-mqtt==1.6.1
