@@ -1,0 +1,60 @@
+switch:
+  - unique_id: draco_waterpump
+    name: "Bomba riego"
+    state_topic: "home/watering/waterpump"
+    command_topic: "home/watering/waterpump"
+    payload_on: "1"
+    payload_off: "0"
+    state_on: "1"
+    state_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true
+    
+  - unique_id: draco_valve1
+    name: "Válvula 1 riego"
+    state_topic: "home/watering/valve1"
+    command_topic: "home/watering/valve1"
+    payload_on: "1"
+    payload_off: "0"
+    state_on: "1"
+    state_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true
+    
+  - unique_id: draco_valve2
+    name: "Válvula 2 riego"
+    state_topic: "home/watering/valve2"
+    command_topic: "home/watering/valve2"
+    payload_on: "1"
+    payload_off: "0"
+    state_on: "1"
+    state_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true  
+    
+  - unique_id: draco_valve3
+    name: "Válvula 3 riego"
+    state_topic: "home/watering/valve3"
+    command_topic: "home/watering/valve3"
+    payload_on: "1"
+    payload_off: "0"
+    state_on: "1"
+    state_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true
+
+  - unique_id: draco_holidays
+    name: "Vacaciones riego"
+    state_topic: "home/watering/holidays"
+    command_topic: "home/watering/holidays"
+    payload_on: "1"
+    payload_off: "0"
+    state_on: "1"
+    state_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true

@@ -4,6 +4,7 @@ from multiprocessing import Manager, Queue
 from draco.processors.telegram_bot import TelegramBot
 from draco.processors.GPIO_handler import GPIOHandler
 from draco.processors.system_scheduler import SystemScheduler
+from draco.processors.mqtt_manager import MQTTManager
 from draco.utils.types import Status
 import argparse
 import json
@@ -37,14 +38,15 @@ def main(manager) -> int:
         # Creation of processes
         processes = []
         # Telegram bot
-        processes.append(
-            TelegramBot(
-                config=config,
-                memory_proxy=(system_status_proxy, system_status_lock),
-                telegram_queue=q_telegram_log,
-                name="telegram_bot",
+        if config["telegram_bot"]["enable"]:
+            processes.append(
+                TelegramBot(
+                    config=config,
+                    memory_proxy=(system_status_proxy, system_status_lock),
+                    telegram_queue=q_telegram_log,
+                    name="telegram_bot",
+                )
             )
-        )
         # Relay shield
         processes.append(
             GPIOHandler(
@@ -63,6 +65,17 @@ def main(manager) -> int:
                 name="scheduler",
             )
         )
+
+        # MQTT
+        if config["mqtt"]["enable"]:
+            processes.append(
+                MQTTManager(
+                    config=config,
+                    memory_proxy=(system_status_proxy, system_status_lock),
+                    telegram_queue=q_telegram_log,
+                    name="mqtt",
+                )
+            )
 
         # Start processes
         for process in processes:
