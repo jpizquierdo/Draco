@@ -38,7 +38,7 @@ class MQTTInterface(object):
         self._pid = os.getpid()
         self.client = None
 
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc, not_used):
         print("Connected with result code " + str(rc))
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
@@ -54,9 +54,14 @@ class MQTTInterface(object):
             "from ",
             message.topic,
         )
-        self.system_status_lock.acquire()
-        self.system_status_proxy[message.topic.split("/")[-1]] = int(message.payload)
-        self.system_status_lock.release()
+        if (
+            "available" not in message.topic
+        ):  # to avoid puth the available topic into status proxy
+            self.system_status_lock.acquire()
+            self.system_status_proxy[message.topic.split("/")[-1]] = int(
+                message.payload
+            )
+            self.system_status_lock.release()
 
     def init(
         self,
