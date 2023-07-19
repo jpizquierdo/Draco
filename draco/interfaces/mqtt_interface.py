@@ -13,7 +13,7 @@ class MQTTInterface(object):
         name: str = "mqtt",
     ) -> None:
         """
-        Telegram interface constructor.
+        MQTT interface constructor.
 
          Parameters
          ----------
@@ -45,23 +45,13 @@ class MQTTInterface(object):
         info = self._check_status()
         for key in info:
             client.subscribe(f"home/watering/{key}")
-        client.subscribe(f"home/watering/available")
 
     def on_message(self, client, userdata, message):
-        print(
-            "received message: ",
-            str(message.payload.decode("utf-8")),
-            "from ",
-            message.topic,
-        )
-        if (
-            "available" not in message.topic
-        ):  # to avoid puth the available topic into status proxy
-            self.system_status_lock.acquire()
-            self.system_status_proxy[message.topic.split("/")[-1]] = int(
-                message.payload
+        self.system_status_lock.acquire()
+        self.system_status_proxy[message.topic.split("/")[-1]] = int(
+            message.payload
             )
-            self.system_status_lock.release()
+        self.system_status_lock.release()
 
     def init(
         self,
@@ -83,9 +73,6 @@ class MQTTInterface(object):
                 host=self._config["broker_ip"], port=self._config["broker_port"]
             )
             self.client.loop_start()
-            self.client.publish(
-                topic=f"home/watering/available", payload="1", retain=True
-            )
 
         except Exception as error:
             print(f"Process {self._pid} - " + repr(error))

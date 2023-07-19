@@ -14,7 +14,7 @@ class MQTTManager(Process):
         name: str,
     ) -> None:
         """
-        Data consumer constructor.
+        MQTT manager  constructor.
 
         Parameters
         ----------
