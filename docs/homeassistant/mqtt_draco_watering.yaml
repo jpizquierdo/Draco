@@ -1,3 +1,5 @@
+#watering system
+#mqtt:
 switch:
   - unique_id: draco_waterpump
     name: "Bomba riego"

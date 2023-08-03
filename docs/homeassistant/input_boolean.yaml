@@ -1,0 +1,26 @@
+#watering system
+#input_boolean:
+wateringstatus_1:
+  name: Water Station 1
+  icon: mdi:water-pump
+wateringweekday_mon_1:
+  name: Monday        
+  icon: mdi:calendar
+wateringweekday_tue_1:
+  name: Tuesday        
+  icon: mdi:calendar
+wateringweekday_wed_1:
+  name: Wednesday       
+  icon: mdi:calendar
+wateringweekday_thu_1:
+  name: Thursday       
+  icon: mdi:calendar
+wateringweekday_fri_1:
+  name: Friday        
+  icon: mdi:calendar
+wateringweekday_sat_1:
+  name: Saturday        
+  icon: mdi:calendar
+wateringweekday_sun_1:
+  name: Sunday
+  icon: mdi:calendar

@@ -1,0 +1,86 @@
+#lovelace UI for watering card
+type: vertical-stack
+cards:
+  - type: entities
+    entities:
+      - entity: input_boolean.wateringstatus_1
+        name: Mode
+      - entity: sensor.water_time_1
+        name: Water Time
+      - entity: input_number.wateringhourstart_1
+      - entity: input_number.wateringminutesstart_1
+      - entity: input_number.wateringduringminutes_1
+    title: Riego
+    show_header_toggle: false
+  - type: horizontal-stack
+    cards:
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        show_icon: true
+        show_name: true
+        entity: input_boolean.wateringweekday_mon_1
+        name: Mon
+        icon_height: 40px
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        show_icon: true
+        show_name: true
+        entity: input_boolean.wateringweekday_tue_1
+        name: Tue
+        icon_height: 40px
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        show_icon: true
+        show_name: true
+        entity: input_boolean.wateringweekday_wed_1
+        name: Wed
+        icon_height: 40px
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        show_icon: true
+        show_name: true
+        entity: input_boolean.wateringweekday_thu_1
+        name: Thu
+        icon_height: 40px
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        show_icon: true
+        show_name: true
+        entity: input_boolean.wateringweekday_fri_1
+        name: Fri
+        icon_height: 40px
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        show_icon: true
+        show_name: true
+        entity: input_boolean.wateringweekday_sat_1
+        name: Sat
+        icon_height: 40px
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: none
+        show_icon: true
+        show_name: true
+        entity: input_boolean.wateringweekday_sun_1
+        name: Sun
+        icon_height: 40px

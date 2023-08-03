@@ -1,2 +1,0 @@
-systemctl --user enable draco.service
-and create it inside ~/.config/systemd/user/draco.service

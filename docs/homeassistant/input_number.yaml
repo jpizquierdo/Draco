@@ -1,0 +1,19 @@
+#watering system
+#input_number:
+wateringhourstart_1:
+  name: Hour
+  min: 00
+  max: 23
+  step: 1
+  icon: mdi:clock-start
+wateringminutesstart_1:
+  name: Minutes
+  min: 00
+  max: 59
+  step: 1
+wateringduringminutes_1:
+  name: Watering time [min]
+  min: 00
+  max: 5
+  step: 1
+  icon: mdi:water-sync

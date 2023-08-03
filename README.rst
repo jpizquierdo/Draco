@@ -12,7 +12,19 @@ Core functionality
 ============
 - Telegram interface: Logging and commands
 - Scheduler interface: Task scheduling
-- GPIO interrace: Control the relay shield interface
+- MQTT interface: to be able to control it from homeassistant or any other MQTT device/service.
+- GPIO interface: Control the relay shield interface
+
+Only GPIO interface is mandatory.
+MQTT and telegram interfaces are optional to be able to control and monitor the system, but not mandatory.
+Scheduler interface is not mandatory if MQTT or telegram interface is selected. If not, the scheduler will be activated by default and no need to activate the holidays option. It will be working at the interval of ``config.json``. It means that when draco app starts, it will activate water_pump and valve1 at ``water_start_time_HH:water_start_time_MM`` till ``water_stop_time_HH:water_stop_time_MM with an interval`` of ``holidays_frequency_days`` (first execution in ``holidays_frequency_days`` days)
+
+Combinations:
+GPIO + scheduler
+GPIO + Telegram
+GPIO + MQTT
+GPIO + Telegram + MQTT
+GPIO + scheduler + Telegram + MQTT
 
 Future functionality
 ============
@@ -26,7 +38,14 @@ Installing
 
     $ git clone https://github.com/jpizquierdo/Draco.git
     $ cd Draco
-    $ pip install -r requirements.txt
+    $ python -m venv .venv
+    $ .venv/bin/pip install -r requirements.txt
+
+Usage
+============
+.. code:: shell
+
+    $ ~/Draco/.venv/bin/python ~/Draco/draco.py -c ~/Draco/config/config.json
 
 Getting help or sharing your idea
 ============

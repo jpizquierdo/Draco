@@ -1,0 +1,18 @@
+#automation for watering system:
+#automation:
+- id: 'automated_watering'
+  alias: watering 1
+  trigger:
+    platform: template
+    value_template: "{{ states('sensor.time') == states('sensor.water_time_1') }}"
+  condition:
+    condition: template
+    value_template: >
+      {% set today = 'input_boolean.wateringweekday_' ~ now().strftime("%a") | lower ~ '_1' %}
+      {{ is_state('input_boolean.wateringstatus_1', 'on') and is_state(today, 'on') }}
+  action:
+    - service: switch.turn_on
+      entity_id: switch.bomba_riego
+    - delay: "{{ states('input_number.wateringduringminutes_1') | multiply(60) | int }}"
+    - service: switch.turn_off
+      entity_id: switch.bomba_riego

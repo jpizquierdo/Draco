@@ -20,7 +20,7 @@
     "water_start_time_HH": "10",
     "water_start_time_MM": "00",
     "water_stop_time_HH": "10",
-    "water_stop_time_MM": "15",
+    "water_stop_time_MM": "02",
     "enable_alive_logging": false
   },
   "mqtt": {
