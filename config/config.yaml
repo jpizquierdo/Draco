@@ -1,0 +1,24 @@
+telegram_bot:
+  enable: true
+  api: TELEGRAM_API_KEY
+  allowed_users:
+  #environment variables of allowed telegram users
+    - CHAT_ID_USER1
+    - CHAT_ID_GROUP1
+    - CHAT_ID_USER2
+relayshield:
+  WaterPump: 4
+  Valve1: 22
+  Valve2: 6
+  Valve3: 26
+scheduler:
+  holidays_frequency_days: 3
+  water_start_time_HH: "10"
+  water_start_time_MM: "00"
+  water_stop_time_HH: "10"
+  water_stop_time_MM: "02"
+  enable_alive_logging: false
+mqtt:
+  enable: true
+  broker_ip: "192.168.1.153"
+  broker_port: 1883

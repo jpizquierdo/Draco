@@ -6,26 +6,32 @@ from draco.processors.GPIO_handler import GPIOHandler
 from draco.processors.system_scheduler import SystemScheduler
 from draco.processors.mqtt_manager import MQTTManager
 from draco.utils.types import Status
+from draco.utils.utils import get_logger
 import argparse
-import json
+import yaml
 import RPi.GPIO as GPIO
 from time import sleep
 
 
 def main(manager) -> int:
+    logger = get_logger(__name__)
     success = True
     processes = None
     pid = os.getpid()
     GPIO.cleanup()  # cleanup will be made in main application only
+    logger.info(f"Starting draco app with pid {pid}")
     try:
         # Get static configuration for the program
         parser = argparse.ArgumentParser()
         parser.add_argument(
-            "-c", "--config", default="config.json", help="Path to static configuration"
+            "-c",
+            "--config",
+            default="./config/config.yaml",
+            help="Path to static configuration",
         )
 
-        with open(Path(parser.parse_args().config), "r") as jsonfile:
-            config = json.load(jsonfile)
+        with open(Path(parser.parse_args().config), "r") as configfile:
+            config = yaml.safe_load(configfile)
 
         # Creation of Manager proxy and Manager Lock: Manager Server Process with common data for multiprocessing. Not shared memory
         system_status_proxy = manager.dict(Status()._asdict())  # create a proxy dict
@@ -65,7 +71,6 @@ def main(manager) -> int:
                 name="scheduler",
             )
         )
-
         # MQTT
         if config["mqtt"]["enable"]:
             processes.append(
@@ -94,6 +99,7 @@ def main(manager) -> int:
         print(f"Process {pid} - " + repr(error))
         success = False
     finally:
+        logger.info("Exiting application")
         GPIO.cleanup()
         q_telegram_log.close()
         if processes is not None:

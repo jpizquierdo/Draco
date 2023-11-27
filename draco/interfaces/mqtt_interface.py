@@ -48,9 +48,7 @@ class MQTTInterface(object):
 
     def on_message(self, client, userdata, message):
         self.system_status_lock.acquire()
-        self.system_status_proxy[message.topic.split("/")[-1]] = int(
-            message.payload
-            )
+        self.system_status_proxy[message.topic.split("/")[-1]] = int(message.payload)
         self.system_status_lock.release()
 
     def init(

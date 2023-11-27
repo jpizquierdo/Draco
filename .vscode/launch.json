@@ -10,7 +10,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/draco.py",
       "console": "integratedTerminal",
-      "args": ["--config", "config/config.json"],
+      "args": ["--config", "config/config.yaml"],
       "justMyCode": true
     }
   ]

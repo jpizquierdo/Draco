@@ -2,7 +2,6 @@ from typing import Mapping, Any
 from multiprocessing import Queue
 import queue
 import os
-import keyring
 from functools import partial
 from telegram import Update
 from telegram.ext import (
@@ -46,11 +45,7 @@ class TelegramInterface(object):
         self.system_status_proxy = memory_proxy[0]
         self.system_status_lock = memory_proxy[1]
         self.telegram_queue = telegram_queue
-        self.logging_chat_id = int(
-            keyring.get_password(
-                self._config["namespace"], self._config["allowed_users"]["user1"]
-            )
-        )
+        self.logging_chat_id = int(os.getenv(self._config["allowed_users"][0]))
         self._pid = os.getpid()
         self._name = name
         self._allowed_users = []
@@ -69,12 +64,8 @@ class TelegramInterface(object):
         """
         success = True
         try:
-            self._allowed_users = self._get_allowed_users(
-                **self._config["allowed_users"]
-            )
-            self._api_key = keyring.get_password(
-                self._config["namespace"], self._config["api"]
-            )
+            self._allowed_users = self._get_allowed_users()
+            self._api_key = os.getenv(self._config["api"])
             # Create the Application and pass it your bot's token.
             self.application = Application.builder().token(self._api_key).build()
             # on different commands - answer in Telegram
@@ -152,13 +143,12 @@ class TelegramInterface(object):
 
     def _get_allowed_users(self, **kwargs):
         """
-        Parse the dictionary from config file to read and append the allowed users.
+        get the user ID env var from config file to read and append the allowed users.
         """
         allowed = []
-        for key in kwargs:
-            allowed.append(
-                int(keyring.get_password(self._config["namespace"], kwargs[key]))
-            )
+        for user in self._config["allowed_users"]:
+            allowed.append(int(os.getenv(user)))
+
         return allowed
 
     async def _check_status(
