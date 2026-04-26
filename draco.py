@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 import sys
 from multiprocessing import Manager, Queue
@@ -7,6 +6,7 @@ from pathlib import Path
 from time import sleep
 
 import RPi.GPIO as GPIO
+import yaml
 
 from draco.processors.GPIO_handler import GPIOHandler
 from draco.processors.mqtt_manager import MQTTManager
@@ -24,11 +24,11 @@ def main(manager) -> int:
         # Get static configuration for the program
         parser = argparse.ArgumentParser()
         parser.add_argument(
-            "-c", "--config", default="config.json", help="Path to static configuration"
+            "-c", "--config", default="config.yaml", help="Path to static configuration"
         )
 
-        with open(Path(parser.parse_args().config)) as jsonfile:
-            config = json.load(jsonfile)
+        with open(Path(parser.parse_args().config)) as yamlfile:
+            config = yaml.safe_load(yamlfile)
 
         # Manager proxy + lock: shared state across processes (not shared memory)
         system_status_proxy = manager.dict(Status()._asdict())  # create a proxy dict
