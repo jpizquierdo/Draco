@@ -55,38 +55,36 @@ python -m venv .venv
 Copy and edit the example config:
 
 ```shell
-cp config/config.json config/my_config.json
+cp config/config.yaml config/my_config.yaml
 ```
 
-Key fields in `config.json`:
+Key fields in `config.yaml`:
 
-```json
-{
-  "telegram_bot": {
-    "enable": true,
-    "api": "YOUR_TELEGRAM_BOT_TOKEN",
-    "allowed_users": { "name": "CHAT_ID" }
-  },
-  "relayshield": {
-    "WaterPump": 4,
-    "Valve1": 22,
-    "Valve2": 6,
-    "Valve3": 26
-  },
-  "scheduler": {
-    "holidays_frequency_days": 3,
-    "water_start_time_HH": "10",
-    "water_start_time_MM": "00",
-    "water_stop_time_HH": "10",
-    "water_stop_time_MM": "02",
-    "enable_alive_logging": false
-  },
-  "mqtt": {
-    "enable": true,
-    "broker_ip": "192.168.1.153",
-    "broker_port": 1883
-  }
-}
+```yaml
+telegram_bot:
+  enable: true
+  api: YOUR_TELEGRAM_BOT_TOKEN
+  allowed_users:
+    user1: CHAT_ID
+
+relayshield:
+  WaterPump: 4
+  Valve1: 22
+  Valve2: 6
+  Valve3: 26
+
+scheduler:
+  holidays_frequency_days: 3
+  water_start_time_HH: "10"
+  water_start_time_MM: "00"
+  water_stop_time_HH: "10"
+  water_stop_time_MM: "02"
+  enable_alive_logging: false
+
+mqtt:
+  enable: true
+  broker_ip: 192.168.1.153
+  broker_port: 1883
 ```
 
 GPIO pin numbers refer to BCM numbering.
@@ -95,10 +93,10 @@ GPIO pin numbers refer to BCM numbering.
 
 ```shell
 # With uv
-uv run python draco.py -c config/config.json
+uv run python draco.py -c config/config.yaml
 
 # With activated venv
-python draco.py -c config/config.json
+python draco.py -c config/config.yaml
 ```
 
 ## Running as a systemd Service
