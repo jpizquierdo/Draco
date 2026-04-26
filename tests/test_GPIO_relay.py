@@ -1,6 +1,7 @@
-from time import sleep
-import RPi.GPIO as GPIO
 from enum import IntEnum, unique
+from time import sleep
+
+import RPi.GPIO as GPIO
 
 
 @unique

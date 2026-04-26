@@ -1,11 +1,12 @@
-from typing import Mapping, Any
-from multiprocessing import Queue
 import os
+from collections.abc import Mapping
+from multiprocessing import Queue
+from typing import Any
+
 import schedule
-from time import sleep
 
 
-class SchedulerInterface(object):
+class SchedulerInterface:
     def __init__(
         self,
         config: Mapping[str, Any] = {},
@@ -75,24 +76,31 @@ class SchedulerInterface(object):
         Function that is called in step, it setup the schedulers or remove them
         """
         if info["holidays"]:
-            self._log(f"Setting the holidays schedulers:")
+            self._log("Setting the holidays schedulers:")
             # Alive logging to send messages to telegram
             if self._config["enable_alive_logging"]:
-                self._log(f"- Alive logging at 09:00 and 22:00")
+                self._log("- Alive logging at 09:00 and 22:00")
                 schedule.every().day.at("22:00").do(self._alive_logging).tag(
                     "all", "holidays", "watchdog"
                 )
                 schedule.every().day.at("09:00").do(self._alive_logging).tag(
                     "all", "holidays", "watchdog"
                 )
+            hh_start = self._config["water_start_time_HH"]
+            mm_start = self._config["water_start_time_MM"]
+            hh_stop = self._config["water_stop_time_HH"]
+            mm_stop = self._config["water_stop_time_MM"]
+            start = f"{hh_start}:{mm_start}"
+            stop = f"{hh_stop}:{mm_stop}"
             self._log(
-                f"- Summer watering each {self._config['holidays_frequency_days']} days starting at {self._config['water_start_time_HH']}:{self._config['water_start_time_MM']} and stoping at {self._config['water_stop_time_HH']}:{self._config['water_stop_time_MM']}"
+                f"- Summer watering each {self._config['holidays_frequency_days']}"
+                f" days starting at {start} and stopping at {stop}"
             )
             schedule.every(self._config["holidays_frequency_days"]).days.at(
                 f"{self._config['water_start_time_HH']}:{self._config['water_start_time_MM']}"
             ).do(self._summer_watering).tag("all", "holidays", "watchdog")
         else:
-            self._log(f"Clearing the holidays schedulers")
+            self._log("Clearing the holidays schedulers")
             schedule.clear("holidays")
 
     def _check_status(self):
@@ -105,14 +113,14 @@ class SchedulerInterface(object):
         return info
 
     def _alive_logging(self):
-        self._log(f"Ey, I am alive.")
+        self._log("Ey, I am alive.")
         # TODO send a webcam photo through telegram
 
     def _summer_watering(self):
         """
         Job that is triggered for watering during the summer
         """
-        self._log(f"Summer watering scheduler")
+        self._log("Summer watering scheduler")
         self._command_waterPump(value=1)
         self._command_valve(valve_number=2, value=1)
         # 15 minutes of watering TODO: put inside configuration

@@ -1,7 +1,10 @@
+import os
+import sys
+from collections.abc import Mapping
 from multiprocessing import Process, Queue
-from typing import Mapping, Any
 from time import sleep
-import sys, os
+from typing import Any
+
 from draco.interfaces.scheduler_interface import SchedulerInterface
 
 

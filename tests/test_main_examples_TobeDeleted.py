@@ -1,7 +1,8 @@
-from time import sleep
-import RPi.GPIO as GPIO
 from enum import IntEnum, unique
+from time import sleep
+
 import adafruit_dht
+import RPi.GPIO as GPIO
 
 
 @unique
@@ -21,7 +22,7 @@ GPIO.setup(Channel.MOISTURE, GPIO.IN)
 GPIO.setup(Channel.VALVE, GPIO.OUT)
 
 # dht setup
-dhtDevice = adafruit_dht.DHT11(board.D18)
+dhtDevice = adafruit_dht.DHT11(board.D18)  # noqa: F821
 
 
 def get_temp():
@@ -53,7 +54,7 @@ def get_humidity():
 def main():
     try:
         while True:
-            if GPIO.input(Channel.MOISTURE) == True:
+            if GPIO.input(Channel.MOISTURE):
                 GPIO.output(Channel.VALVE, True)
                 sleep(Times.WATER_S)
                 GPIO.output(Channel.VALVE, False)

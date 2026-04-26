@@ -1,10 +1,12 @@
-from typing import Mapping, Any
-from multiprocessing import Queue
 import os
+from collections.abc import Mapping
+from multiprocessing import Queue
+from typing import Any
+
 import paho.mqtt.client as mqtt
 
 
-class MQTTInterface(object):
+class MQTTInterface:
     def __init__(
         self,
         config: Mapping[str, Any] = {},
@@ -48,9 +50,7 @@ class MQTTInterface(object):
 
     def on_message(self, client, userdata, message):
         self.system_status_lock.acquire()
-        self.system_status_proxy[message.topic.split("/")[-1]] = int(
-            message.payload
-            )
+        self.system_status_proxy[message.topic.split("/")[-1]] = int(message.payload)
         self.system_status_lock.release()
 
     def init(

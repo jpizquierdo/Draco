@@ -1,21 +1,23 @@
-from typing import Mapping, Any
-from multiprocessing import Queue
-import queue
 import os
-import keyring
+import queue
+from collections.abc import Mapping
 from functools import partial
+from multiprocessing import Queue
+from typing import Any
+
+import keyring
 from telegram import Update
 from telegram.ext import (
     Application,
+    CallbackContext,
     CommandHandler,
     ContextTypes,
     MessageHandler,
     filters,
-    CallbackContext,
 )
 
 
-class TelegramInterface(object):
+class TelegramInterface:
     def __init__(
         self,
         config: Mapping[str, Any] = {},
@@ -142,7 +144,7 @@ class TelegramInterface(object):
     # update: Update, context: ContextTypes.DEFAULT_TYPE
     async def step_log(self, context: CallbackContext) -> None:
         """
-        This methods will check the queue and log the messages from other processes to self.logging_chat_id
+        Check the queue and forward messages from other processes to logging_chat_id.
         """
         try:
             msg = self.telegram_queue.get_nowait()
@@ -184,8 +186,9 @@ class TelegramInterface(object):
         self.system_status_proxy["waterpump"] = int(
             not self.system_status_proxy["waterpump"]
         )
+        status = self.system_status_proxy["waterpump"]
         await update.message.reply_text(
-            f"{__name__.split('.')[-1]}: Request Pump Status to {self.system_status_proxy['waterpump']}"
+            f"{__name__.split('.')[-1]}: Request Pump Status to {status}"
         )
         self.system_status_lock.release()
 
@@ -199,8 +202,10 @@ class TelegramInterface(object):
         self.system_status_proxy[f"valve{valve_number}"] = int(
             not self.system_status_proxy[f"valve{valve_number}"]
         )
+        status = self.system_status_proxy[f"valve{valve_number}"]
+        module = __name__.split(".")[-1]
         await update.message.reply_text(
-            f"{__name__.split('.')[-1]}: Request Valve {valve_number} Status to {self.system_status_proxy[f'valve{valve_number}']}"
+            f"{module}: Request Valve {valve_number} Status to {status}"
         )
         self.system_status_lock.release()
 
@@ -214,7 +219,8 @@ class TelegramInterface(object):
         self.system_status_proxy["holidays"] = int(
             not self.system_status_proxy["holidays"]
         )
+        status = self.system_status_proxy["holidays"]
         await update.message.reply_text(
-            f"{__name__.split('.')[-1]}: Request Holidays Mode to {self.system_status_proxy['holidays']}"
+            f"{__name__.split('.')[-1]}: Request Holidays Mode to {status}"
         )
         self.system_status_lock.release()
