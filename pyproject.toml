@@ -20,12 +20,18 @@ draco = "draco:main"
 
 [dependency-groups]
 dev = [
-    "black>=26.3.1",
+    "ruff>=0.9.0",
 ]
 
-[tool.black]
+[tool.ruff]
+target-version = "py39"
 line-length = 88
-target-version = ["py39"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
 
 [build-system]
 requires = ["hatchling"]
