@@ -1,8 +1,9 @@
-from multiprocessing import Process
-from typing import Mapping, Any
-from multiprocessing import Queue
-from time import sleep
-import sys, os
+import os
+import sys
+from collections.abc import Mapping
+from multiprocessing import Process, Queue
+from typing import Any
+
 from draco.interfaces.telegram_interface import TelegramInterface
 
 
@@ -49,7 +50,7 @@ class TelegramBot(Process):
                 name=self._name,
             )
             while True:
-                # In this case, it wont termine the execution of init, it will be an infinite loop with asyncio functionalities
+                # init() runs an asyncio infinite loop; it only returns on error
                 success = teleti.init()
 
         except Exception as error:

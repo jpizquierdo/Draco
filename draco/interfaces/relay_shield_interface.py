@@ -1,8 +1,10 @@
-from typing import Mapping, Any
-from multiprocessing import Queue
 import os
-import RPi.GPIO as GPIO
+from collections.abc import Mapping
 from enum import IntEnum, unique
+from multiprocessing import Queue
+from typing import Any
+
+import RPi.GPIO as GPIO
 
 
 @unique
@@ -11,7 +13,7 @@ class GPIO_Mode(IntEnum):
     BOARD_MODE = 10
 
 
-class KS0212Interface(object):
+class KS0212Interface:
     """
     KS0212 keyestudio RPI 4-channel Relay Shield interface.
 
@@ -89,7 +91,7 @@ class KS0212Interface(object):
 
         try:
             # GPIO setup
-            if GPIO.getmode() == None:
+            if GPIO.getmode() is None:
                 GPIO.setmode(GPIO.BCM)
             self._gpio_setup(**self._config)
             self.Channel = IntEnum(
@@ -128,7 +130,7 @@ class KS0212Interface(object):
             self.handle_relay(self.Channel.VALVE1, info["valve1"])
             self.handle_relay(self.Channel.VALVE2, info["valve2"])
             self.handle_relay(self.Channel.VALVE3, info["valve3"])
-        except:
+        except Exception:
             success = False
         return success
 
@@ -145,7 +147,7 @@ class KS0212Interface(object):
 
     def handle_relay(self, channel, value):
         """
-        Method to handle the relay. It only takes effect if the GPIO HW value has changed.
+        Handle the relay. Only takes effect if the GPIO HW value has changed.
 
         Parameters
         ----------

@@ -1,8 +1,9 @@
 # https://github.com/dbader/schedule
 # https://schedule.readthedocs.io/en/stable/
 
-import schedule
 import time
+
+import schedule
 
 
 def job():
@@ -43,8 +44,9 @@ while True:
 
 
 # Run a job once
-import schedule
-import time
+import time  # noqa: E402
+
+import schedule  # noqa: E402
 
 
 def job_that_executes_once():

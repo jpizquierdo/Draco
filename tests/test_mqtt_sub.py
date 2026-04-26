@@ -1,5 +1,6 @@
-import paho.mqtt.client as mqtt
 import time
+
+import paho.mqtt.client as mqtt
 
 
 def on_message(client, userdata, message):

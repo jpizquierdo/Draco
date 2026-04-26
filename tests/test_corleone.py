@@ -1,15 +1,15 @@
-import time
-import random
 import datetime
+import random
+import time
+
+# from pprint import pprint
+# import pandas as pd
+import keyring
 import telepot
 
 # import board
 # import adafruit_dht
 from telepot.loop import MessageLoop
-
-# from pprint import pprint
-# import pandas as pd
-import keyring
 
 API_KEY = keyring.get_password("draco", "TELEGRAM_API_KEY")
 USER_ID = int(keyring.get_password("draco", "CHAT_ID_USER1"))
@@ -57,7 +57,7 @@ def handle(msg):
     command = msg["text"]
     # pprint(msg)
     if chat_id in allowed:
-        print("Got command: %s" % command)
+        print(f"Got command: {command}")
         if command == "/random":
             bot.sendMessage(chat_id, random.randint(1, 6))
         elif command == "/date":
@@ -71,7 +71,7 @@ def handle(msg):
         # current_temperature, current_humidity=get_DHT()
         # bot.sendMessage(chat_id, "Temperature: "+str(current_temperature)+" ºC")
         # bot.sendMessage(chat_id, "Humedad: "+str(current_humidity)+" %")
-        # df = df.append({'Date': str(datetime.datetime.now()), 'Temperature': current_temperature, 'Humidity': current_humidity}, ignore_index=True)
+        # df = df.append({'Date': str(datetime.datetime.now()), 'Temperature': current_temperature, 'Humidity': current_humidity}, ignore_index=True)  # noqa: E501
         # elif command == '/save':
         # print("Logging content: ", df, sep='\n')
         # df.to_csv("datos.csv",index = False)

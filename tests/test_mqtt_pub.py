@@ -1,6 +1,7 @@
-import paho.mqtt.client as mqtt
-from random import randrange, uniform
 import time
+from random import uniform
+
+import paho.mqtt.client as mqtt
 
 mqttBroker = "192.168.1.153"
 

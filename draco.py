@@ -1,15 +1,18 @@
-import sys, os
-from pathlib import Path
-from multiprocessing import Manager, Queue
-from draco.processors.telegram_bot import TelegramBot
-from draco.processors.GPIO_handler import GPIOHandler
-from draco.processors.system_scheduler import SystemScheduler
-from draco.processors.mqtt_manager import MQTTManager
-from draco.utils.types import Status
 import argparse
 import json
-import RPi.GPIO as GPIO
+import os
+import sys
+from multiprocessing import Manager, Queue
+from pathlib import Path
 from time import sleep
+
+import RPi.GPIO as GPIO
+
+from draco.processors.GPIO_handler import GPIOHandler
+from draco.processors.mqtt_manager import MQTTManager
+from draco.processors.system_scheduler import SystemScheduler
+from draco.processors.telegram_bot import TelegramBot
+from draco.utils.types import Status
 
 
 def main(manager) -> int:
@@ -24,10 +27,10 @@ def main(manager) -> int:
             "-c", "--config", default="config.json", help="Path to static configuration"
         )
 
-        with open(Path(parser.parse_args().config), "r") as jsonfile:
+        with open(Path(parser.parse_args().config)) as jsonfile:
             config = json.load(jsonfile)
 
-        # Creation of Manager proxy and Manager Lock: Manager Server Process with common data for multiprocessing. Not shared memory
+        # Manager proxy + lock: shared state across processes (not shared memory)
         system_status_proxy = manager.dict(Status()._asdict())  # create a proxy dict
         system_status_lock = manager.Lock()
         # shared memory queue
@@ -85,8 +88,9 @@ def main(manager) -> int:
         while success:
             for process in processes:
                 if process.exitcode == 1:
-                    raise Exception(
-                        "A critical process exited with error, terminating all other processes"
+                    raise Exception(  # noqa: TRY002
+                        "A critical process exited with error,"
+                        " terminating all other processes"
                     )
             sleep(1)
 

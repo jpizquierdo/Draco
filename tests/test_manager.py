@@ -1,5 +1,5 @@
-from time import sleep
 from multiprocessing import Manager, Process
+from time import sleep
 from typing import NamedTuple
 
 
@@ -42,9 +42,7 @@ if __name__ == "__main__":
 
     manager = Manager()  # create a manager
     status_proxy = manager.dict(my_dict)  # create a proxy dict
-    my_lock = (
-        manager.Lock()
-    )  # create lock object to be able to operate with the status proxy in multiprocess (read and write in multiple process without memory breaking)
+    my_lock = manager.Lock()
 
     # creating new processes
     p1 = Process(target=modify_waterpump, args=(my_lock, status_proxy))

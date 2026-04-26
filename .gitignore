@@ -1,2 +1,8 @@
 *.pyc
 .vscode
+.venv/
+__pycache__/
+*.egg-info/
+dist/
+.uv/
+.ruff_cache/
